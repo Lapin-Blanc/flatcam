@@ -180,8 +180,11 @@ class FlatCAMGUI(QtWidgets.QMainWindow):
         ### Notebook ###
         ################
         self.notebook = QtWidgets.QTabWidget()
-        
-        # self.notebook.setMinimumWidth(250)
+        # Show all tabs instead of Qt6's scroll arrows when the bar is narrow,
+        # and keep the panel wide enough for the whole tab bar (~269px).
+        self.notebook.tabBar().setUsesScrollButtons(False)
+        self.notebook.tabBar().setExpanding(False)
+        self.notebook.setMinimumWidth(275)
 
         ### Project ###
         project_tab = QtWidgets.QWidget()
