@@ -88,7 +88,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e . nuitka
       - name: Build (Nuitka standalone)
-        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyqt5 --enable-plugin=tk-inter --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+        # anti-bloat conflicts with the pyqt5 plugin over including PyQt5; disable it.
+        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyqt5 --enable-plugin=tk-inter --disable-plugin=anti-bloat --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
       - name: Zip
         shell: pwsh
         run: |
