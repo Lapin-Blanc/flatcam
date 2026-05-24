@@ -6,7 +6,7 @@
 # MIT Licence                                              #
 ############################################################
 
-from PyQt5 import QtWidgets
+from PySide6 import QtGui, QtWidgets
 
 
 class FlatCAMTool(QtWidgets.QWidget):
@@ -49,7 +49,7 @@ class FlatCAMTool(QtWidgets.QWidget):
             before = (kwargs['before'])
 
         # create the new Action
-        self.menuAction = QtWidgets.QAction(self)
+        self.menuAction = QtGui.QAction(self)
         # if provided, add an icon to this Action
         if icon is not None:
             self.menuAction.setIcon(icon)

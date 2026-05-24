@@ -7,7 +7,7 @@
 ############################################################
 
 from FlatCAMGUI import FlatCAMActivityView
-from PyQt5 import QtCore
+from PySide6 import QtCore
 import weakref
 
 
@@ -120,7 +120,7 @@ class FCProcessContainer(object):
 
 
 class FCVisibleProcessContainer(QtCore.QObject, FCProcessContainer):
-    something_changed = QtCore.pyqtSignal()
+    something_changed = QtCore.Signal()
 
     def __init__(self, view):
         assert isinstance(view, FlatCAMActivityView), \

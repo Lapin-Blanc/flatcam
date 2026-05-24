@@ -9,7 +9,7 @@
 from FlatCAMObj import *
 import inspect  # TODO: Remove
 import FlatCAMApp
-from PyQt5 import Qt, QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 
 
 class KeySensitiveListView(QtWidgets.QListView):
@@ -17,7 +17,7 @@ class KeySensitiveListView(QtWidgets.QListView):
     QtWidgets.QListView extended to emit a signal on key press.
     """
 
-    keyPressed = QtCore.pyqtSignal(int)
+    keyPressed = QtCore.Signal(int)
 
     def keyPressEvent(self, event):
         super(KeySensitiveListView, self).keyPressEvent(event)
@@ -66,7 +66,7 @@ class ObjectCollection():
         ### View
         #self.view = QtWidgets.QListView()
         self.view = KeySensitiveListView()
-        self.view.setSelectionMode(Qt.QAbstractItemView.ExtendedSelection)
+        self.view.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.model = QtGui.QStandardItemModel(self.view)
         self.view.setModel(self.model)
         self.model.itemChanged.connect(self.on_item_changed)
@@ -113,19 +113,19 @@ class ObjectCollection():
     def columnCount(self, *args, **kwargs):
         return 1
 
-    def data(self, index, role=Qt.Qt.DisplayRole):
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid() or not 0 <= index.row() < self.rowCount():
             return None
         row = index.row()
-        if role == Qt.Qt.DisplayRole:
+        if role == QtCore.Qt.DisplayRole:
             return self.object_list[row].options["name"]
-        if role == Qt.Qt.DecorationRole:
+        if role == QtCore.Qt.DecorationRole:
             return self.icons[self.object_list[row].kind]
-        # if role == Qt.Qt.CheckStateRole:
+        # if role == QtCore.Qt.CheckStateRole:
         #     if row in self.checked_indexes:
-        #         return Qt.Qt.Checked
+        #         return QtCore.Qt.Checked
         #     else:
-        #         return Qt.Qt.Unchecked
+        #         return QtCore.Qt.Unchecked
 
     def append(self, obj, active=False):
         FlatCAMApp.App.log.debug(str(inspect.stack()[1][3]) + " --> OC.append()")
@@ -169,9 +169,9 @@ class ObjectCollection():
         # The item is checkable, to add the checkbox.
         item.setCheckable(True)
         if obj.options["plot"] is True:
-            item.setCheckState(2)   #Qt.Checked)
+            item.setCheckState(QtCore.Qt.CheckState.Checked)
         else:
-            item.setCheckState(0)   #Qt.Unchecked)
+            item.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
         self.model.appendRow(item)
 
@@ -184,15 +184,15 @@ class ObjectCollection():
         if key == "plot":
             self.model.blockSignals(True)
             name = obj.options["name"]
-            state = 0 #Qt.Unchecked
+            state = QtCore.Qt.CheckState.Unchecked
             for index in range(self.model.rowCount()):
                 item = self.model.item(index)
                 if self.object_list[item.row()].options["name"] == name:
                     if obj.options["plot"] == True:
-                        state = 2 #Qt.Checked
+                        state = QtCore.Qt.CheckState.Checked
 
                     item.setCheckState(state)
-                    obj.ui.plot_cb.set_value(state)
+                    obj.ui.plot_cb.set_value(state == QtCore.Qt.CheckState.Checked)
                     break
             self.model.blockSignals(False)
 

@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from copy import copy
 #import FlatCAMApp
 import re
@@ -395,7 +395,7 @@ class OptionalInputSection:
 
     def on_cb_change(self):
 
-        if self.cb.checkState():
+        if self.cb.isChecked():
 
             for widget in self.optinputs:
                 widget.setEnabled(True)

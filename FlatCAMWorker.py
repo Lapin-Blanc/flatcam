@@ -6,7 +6,7 @@
 # MIT Licence                                              #
 ############################################################
 
-from PyQt5 import QtCore
+from PySide6 import QtCore
 
 
 class Worker(QtCore.QObject):

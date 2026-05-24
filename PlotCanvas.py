@@ -6,13 +6,13 @@
 # MIT Licence                                              #
 ############################################################
 
-from PyQt5 import QtCore
+from PySide6 import QtCore
 
 from matplotlib import use as mpl_use
-mpl_use("Qt5Agg")
+mpl_use("QtAgg")
 
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import FlatCAMApp
 import logging
@@ -39,7 +39,7 @@ class CanvasCache(QtCore.QObject):
 
     # Signals:
     # A bitmap is ready to be displayed.
-    new_screen = QtCore.pyqtSignal()
+    new_screen = QtCore.Signal()
 
     def __init__(self, plotcanvas, app, dpi=50):
 
@@ -105,7 +105,7 @@ class PlotCanvas(QtCore.QObject):
     # Signals:
     # Request for new bitmap to display. The parameter
     # is a list with [xmin, xmax, ymin, ymax, zoom(optional)]
-    update_screen_request = QtCore.pyqtSignal(list)
+    update_screen_request = QtCore.Signal(list)
 
     def __init__(self, container, app):
         """

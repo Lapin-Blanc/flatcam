@@ -3,7 +3,7 @@
 Headless smoke test for FlatCAM's secondary tools / geometry operations.
 
 Drives the TCL command layer (which the GUI tools call into) to exercise the
-heavy geometry code paths where Python 3.12 / PyQt5 / shapely 2.x porting
+heavy geometry code paths where Python 3.12 / PySide6 / shapely 2.x porting
 regressions tend to hide. It does NOT validate CAM correctness -- it only
 checks that each operation runs without an unexpected Python-level exception.
 
@@ -19,7 +19,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))  # project root
 
-from PyQt5 import QtWidgets  # noqa: E402
+from PySide6 import QtWidgets  # noqa: E402
 from FlatCAMApp import App  # noqa: E402
 GERBER = os.path.join(HERE, "gerber_files", "simple1.gbr")
 EXCELLON = os.path.join(HERE, "excellon_files", "case1.drl")
