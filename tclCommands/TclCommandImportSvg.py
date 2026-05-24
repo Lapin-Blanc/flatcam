@@ -47,7 +47,7 @@ class TclCommandImportSvg(TclCommandSignaled):
         # How the object should be initialized
         def obj_init(geo_obj, app_obj):
 
-            if not isinstance(geo_obj, Geometry):
+            if not isinstance(geo_obj, FlatCAMGeometry):
                 self.raise_tcl_error('Expected Geometry or Gerber, got %s %s.' % (outname, type(geo_obj)))
 
             geo_obj.import_svg(filename)

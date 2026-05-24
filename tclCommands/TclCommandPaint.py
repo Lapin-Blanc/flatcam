@@ -65,7 +65,7 @@ class TclCommandPaint(TclCommandSignaled):
         if obj is None:
             self.raise_tcl_error("Object not found: %s" % name)
 
-        if not isinstance(obj, Geometry):
+        if not isinstance(obj, FlatCAMGeometry):
             self.raise_tcl_error('Expected Geometry, got %s %s.' % (name, type(obj)))
 
         if 'all' in args and args['all']:

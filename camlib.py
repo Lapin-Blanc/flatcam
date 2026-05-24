@@ -3239,7 +3239,9 @@ class CNCjob(Geometry):
         # Store the geometry
         log.debug("Indexing geometry before generating G-Code...")
         for shape in flat_geometry:
-            if shape is not None:  # TODO: This shouldn't have happened.
+            # Skip None and empty geometries: get_pts() indexes coords[0]/[-1],
+            # which raises IndexError on empty paths (e.g. produced by transforms).
+            if shape is not None and not shape.is_empty:
                 storage.insert(shape)
 
         if tooldia is not None:
