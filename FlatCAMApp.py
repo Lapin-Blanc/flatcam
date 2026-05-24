@@ -4395,12 +4395,15 @@ class App(QtCore.QObject):
 
         self.inform.emit("Project saved to: %s" % filename)
 
-# def main():
-#
-#     app = QtWidgets.QApplication(sys.argv)
-#     fc = App()
-#     sys.exit(app.exec_())
-#
-#
-# if __name__ == '__main__':
-#     main()
+def main():
+    """Console/GUI entry point. Used by the `flatcam` command installed via
+    the package's entry point, and by `python -m FlatCAMApp`."""
+    app = QtWidgets.QApplication(sys.argv)
+    # Legacy resource search paths (used by QIcon("share:...") style lookups).
+    QtCore.QDir.setSearchPaths("share", ["share", "share/flatcam", "/usr/share/flatcam"])
+    fc = App()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

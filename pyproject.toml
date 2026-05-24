@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "FlatCAM"
+version = "8.5"
+description = "2D Computer-Aided PCB Manufacturing"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Juan Pablo Caram" }]
+keywords = ["cam", "pcb", "gerber", "cnc", "isolation-routing"]
+
+dependencies = [
+    "PyQt5",
+    "numpy>=1.8",
+    "scipy",
+    "matplotlib>=1.3.1",
+    "shapely>=2.0",
+    "rtree",
+    "svg.path",
+    "simplejson",
+]
+
+[project.urls]
+Homepage = "http://flatcam.org/"
+Repository = "https://github.com/Lapin-Blanc/flatcam"
+
+# GUI entry point: installs a `flatcam` launcher that calls FlatCAMApp.main().
+[project.gui-scripts]
+flatcam = "FlatCAMApp:main"
+
+# Flat layout: explicit lists disable setuptools auto-discovery (which would
+# choke on the many top-level modules). tests/, sandbox/, doc/ are excluded
+# by omission.
+[tool.setuptools]
+py-modules = [
+    "camlib",
+    "FlatCAMApp",
+    "FlatCAMCommon",
+    "FlatCAMDraw",
+    "FlatCAMGUI",
+    "FlatCAMObj",
+    "FlatCAMProcess",
+    "FlatCAMShell",
+    "FlatCAMTool",
+    "FlatCAMVersion",
+    "FlatCAMWorker",
+    "GUIElements",
+    "ObjectCollection",
+    "ObjectUI",
+    "PlotCanvas",
+    "svgparse",
+    "termwidget",
+    "ToolDblSided",
+    "ToolMeasurement",
+    "ToolTransform",
+]
+packages = ["descartes", "tclCommands", "share"]
+
+# Ship the icon/cursor resources as data inside the installed `share` package,
+# so they land next to the modules. FlatCAMApp chdir()s to its own directory
+# and loads them via relative "share/<file>" paths.
+[tool.setuptools.package-data]
+share = ["*.png", "*.gif", "*.svg", "*.ico"]
