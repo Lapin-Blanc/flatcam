@@ -71,6 +71,34 @@ jobs:
           name: windows
           path: "FlatCAM-*-windows-x86_64.zip"
 
+  # Experimental: Nuitka build (compiled binary) to compare antivirus
+  # false-positive rates against the PyInstaller .exe. Artifact only, not
+  # attached to the release for now.
+  windows-nuitka:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install (deps + app + nuitka)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . nuitka
+      - name: Build (Nuitka standalone)
+        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyqt5 --enable-plugin=tk-inter --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+      - name: Zip
+        shell: pwsh
+        run: |
+          $v = (python -c "from importlib.metadata import version; print(version('FlatCAM'))")
+          Compress-Archive -Path dist-nuitka/flatcam_run.dist/* -DestinationPath "FlatCAM-$v-windows-x86_64-nuitka.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-nuitka
+          path: "FlatCAM-*-windows-x86_64-nuitka.zip"
+
   release:
     needs: [linux, windows]
     runs-on: ubuntu-latest

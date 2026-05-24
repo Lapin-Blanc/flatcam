@@ -196,10 +196,11 @@ class App(QtCore.QObject):
 
         # Application directory. Chdir to it. Otherwise, trying to load
         # GUI icons will fail as thir path is relative.
-        if hasattr(sys, "frozen"):
+        if hasattr(sys, "frozen") or "__compiled__" in globals():
             # PyInstaller unpacks bundled resources under sys._MEIPASS (the
-            # _internal/ dir for onedir, a temp dir for onefile). Fall back to
-            # the executable's directory for other freezers (cx_Freeze, etc.).
+            # _internal/ dir for onedir, a temp dir for onefile). Nuitka and
+            # other freezers (cx_Freeze) keep them next to the executable, so
+            # fall back to its directory. "__compiled__" detects Nuitka.
             self.app_home = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
         else:
             self.app_home = os.path.dirname(os.path.realpath(__file__))
