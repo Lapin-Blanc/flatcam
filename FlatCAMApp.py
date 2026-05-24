@@ -197,8 +197,10 @@ class App(QtCore.QObject):
         # Application directory. Chdir to it. Otherwise, trying to load
         # GUI icons will fail as thir path is relative.
         if hasattr(sys, "frozen"):
-            # For cx_freeze and sililar.
-            self.app_home = os.path.dirname(sys.executable)
+            # PyInstaller unpacks bundled resources under sys._MEIPASS (the
+            # _internal/ dir for onedir, a temp dir for onefile). Fall back to
+            # the executable's directory for other freezers (cx_Freeze, etc.).
+            self.app_home = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
         else:
             self.app_home = os.path.dirname(os.path.realpath(__file__))
         App.log.debug("Application path is " + self.app_home)
