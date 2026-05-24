@@ -158,10 +158,11 @@ class App(QtCore.QObject):
 
         # Folder for user settings.
         if sys.platform == 'win32':
-            from win32com.shell import shell, shellcon
             App.log.debug("Win32!")
-            self.data_path = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, None, 0) + \
-                '/FlatCAM'
+            # %APPDATA% is the Roaming AppData folder (same as the old win32com
+            # SHGetFolderPath(CSIDL_APPDATA)); avoids the heavy pywin32 dependency.
+            self.data_path = os.path.join(
+                os.environ.get('APPDATA', os.path.expanduser('~')), 'FlatCAM')
             self.os = 'windows'
         else:  # Linux/Unix/MacOS
             self.data_path = os.path.expanduser('~') + \
