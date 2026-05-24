@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 from GUIElements import FCEntry, FCButton
 from FlatCAMTool import FlatCAMTool
 from camlib import *
@@ -197,7 +197,7 @@ class ToolTransform(FlatCAMTool):
             warningbox.setWindowIcon(QtGui.QIcon('share/warning.png'))
             warningbox.setStandardButtons(QtWidgets.QMessageBox.Ok)
             warningbox.setDefaultButton(QtWidgets.QMessageBox.Ok)
-            warningbox.exec_()
+            warningbox.exec()
         else:
             try:
                 # first get a bounding box to fit all
@@ -241,7 +241,7 @@ class ToolTransform(FlatCAMTool):
             warningbox.setWindowIcon(QtGui.QIcon('share/warning.png'))
             warningbox.setStandardButtons(QtWidgets.QMessageBox.Ok)
             warningbox.setDefaultButton(QtWidgets.QMessageBox.Ok)
-            warningbox.exec_()
+            warningbox.exec()
             return
         else:
             try:
@@ -291,7 +291,7 @@ class ToolTransform(FlatCAMTool):
             warningbox.setWindowIcon(QtGui.QIcon('share/warning.png'))
             warningbox.setStandardButtons(QtWidgets.QMessageBox.Ok)
             warningbox.setDefaultButton(QtWidgets.QMessageBox.Ok)
-            warningbox.exec_()
+            warningbox.exec()
         else:
             try:
                 # first get a bounding box to fit all

@@ -17,7 +17,7 @@ import re
 import webbrowser
 import os
 import tkinter
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import time  # Just used for debugging. Double check before removing.
 from xml.dom.minidom import parseString as parse_xml_string
 from contextlib import contextmanager
@@ -97,10 +97,10 @@ class App(QtCore.QObject):
     # Inform the user
     # Handled by:
     #  * App.info() --> Print on the status bar
-    inform = QtCore.pyqtSignal(str)
+    inform = QtCore.Signal(str)
 
     # General purpose background task
-    worker_task = QtCore.pyqtSignal(dict)
+    worker_task = QtCore.Signal(dict)
 
     # File opened
     # Handled by:
@@ -109,29 +109,29 @@ class App(QtCore.QObject):
     # Note: Setting the parameters to unicode does not seem
     #       to have an effect. Then are received as Qstring
     #       anyway.
-    file_opened = QtCore.pyqtSignal(str, str)  # File type and filename
+    file_opened = QtCore.Signal(str, str)  # File type and filename
 
-    progress = QtCore.pyqtSignal(int)  # Percentage of progress
+    progress = QtCore.Signal(int)  # Percentage of progress
 
-    plots_updated = QtCore.pyqtSignal()
+    plots_updated = QtCore.Signal()
 
     # Emitted by new_object() and passes the new object as argument and a plot flag
     # on_object_created() adds the object to the collection, plot the object if plot flag is True
     # and emits new_object_available.
-    object_created = QtCore.pyqtSignal(object, bool)
+    object_created = QtCore.Signal(object, bool)
 
     # Emitted when a new object has been added to the collection
     # and is ready to be used.
-    new_object_available = QtCore.pyqtSignal(object)
+    new_object_available = QtCore.Signal(object)
 
-    message = QtCore.pyqtSignal(str, str, str)
+    message = QtCore.Signal(str, str, str)
 
     # Emmited when shell command is finished(one command only)
-    shell_command_finished = QtCore.pyqtSignal(object)
+    shell_command_finished = QtCore.Signal(object)
 
     # Emitted when an unhandled exception happens
     # in the worker task.
-    thread_exception = QtCore.pyqtSignal(object)
+    thread_exception = QtCore.Signal(object)
 
     @property
     def version_date_str(self):
@@ -981,7 +981,7 @@ class App(QtCore.QObject):
                 "error": QtWidgets.QMessageBox.Critical}[str(kind)]
         dlg = QtWidgets.QMessageBox(icon, title, message, parent=self.ui)
         dlg.setText(message)
-        dlg.exec_()
+        dlg.exec()
 
     def register_recent(self, kind, filename):
 
@@ -1165,7 +1165,7 @@ class App(QtCore.QObject):
 
                 okbtn.clicked.connect(self.accept)
 
-        AboutDialog(self.ui).exec_()
+        AboutDialog(self.ui).exec()
 
     def on_file_savedefaults(self):
         """
@@ -1178,7 +1178,7 @@ class App(QtCore.QObject):
         self.save_defaults()
 
     def on_file_exit(self):
-        QtWidgets.qApp.quit()
+        QtWidgets.QApplication.instance().quit()
 
     def save_defaults(self, silent=False):
         """
@@ -1422,7 +1422,7 @@ class App(QtCore.QObject):
         msgbox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
         msgbox.setDefaultButton(QtWidgets.QMessageBox.Ok)
 
-        response = msgbox.exec_()
+        response = msgbox.exec()
 
         if response == QtWidgets.QMessageBox.Ok:
             self.options_read_form()
@@ -1727,14 +1727,14 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Gerber",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Gerber")
 
         # The Qt methods above will return a QString which can cause problems later.
         # So far json.dump() will fail to serialize it.
         # TODO: Improve the serialization methods and remove this fix.
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         if filename == "":
@@ -1755,14 +1755,14 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Excellon",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Excellon")
 
         # The Qt methods above will return a QString which can cause problems later.
         # So far json.dump() will fail to serialize it.
         # TODO: Improve the serialization methods and remove this fix.
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         if filename == "":
@@ -1783,14 +1783,14 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open G-Code",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open G-Code")
 
         # The Qt methods above will return a QString which can cause problems later.
         # So far json.dump() will fail to serialize it.
         # TODO: Improve the serialization methods and remove this fix.
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         if filename == "":
@@ -1811,14 +1811,14 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Project",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Project")
 
         # The Qt methods above will return a QString which can cause problems later.
         # So far json.dump() will fail to serialize it.
         # TODO: Improve the serialization methods and remove this fix.
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         if filename == "":
@@ -1847,7 +1847,7 @@ class App(QtCore.QObject):
             msgbox.setInformativeText(msg)
             msgbox.setStandardButtons(QtWidgets.QMessageBox.Ok)
             msgbox.setDefaultButton(QtWidgets.QMessageBox.Ok)
-            msgbox.exec_()
+            msgbox.exec()
             return
 
         # Check for more compatible types and add as required
@@ -1858,18 +1858,18 @@ class App(QtCore.QObject):
             msgbox.setInformativeText(msg)
             msgbox.setStandardButtons(QtWidgets.QMessageBox.Ok)
             msgbox.setDefaultButton(QtWidgets.QMessageBox.Ok)
-            msgbox.exec_()
+            msgbox.exec()
             return
 
         name = self.collection.get_active().options["name"]
 
         try:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Export SVG",
-                                                         directory=self.get_last_folder(), filter="*.svg")
+                                                         dir=self.get_last_folder(), filter="*.svg")
         except TypeError:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Export SVG")
 
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         if filename == "":
@@ -1889,11 +1889,11 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Import SVG",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Import SVG")
 
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         if filename == "":
@@ -1933,11 +1933,11 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Save Project As ...",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Save Project As ...")
 
-        # PyQt5: getOpenFileName/getSaveFileName return (filename, selectedFilter)
+        # PySide6: getOpenFileName/getSaveFileName return (filename, selectedFilter)
         filename = str(filename[0])
 
         try:
@@ -1953,7 +1953,7 @@ class App(QtCore.QObject):
             msgbox.setInformativeText(msg)
             msgbox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
             msgbox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-            result = msgbox.exec_()
+            result = msgbox.exec()
             if result == QtWidgets.QMessageBox.Cancel:
                 return
 
@@ -2466,7 +2466,7 @@ class App(QtCore.QObject):
                 QtCore.QTimer.singleShot(timeout, report_quit)
 
             #### Block ####
-            loop.exec_()
+            loop.exec()
 
             # Restore exception management
             sys.excepthook = oeh
@@ -2488,7 +2488,7 @@ class App(QtCore.QObject):
         #
         #     if timeout is not None:
         #         QtCore.QTimer.singleShot(timeout, report_quit)
-        #     loop.exec_()
+        #     loop.exec()
         #
         #     if status['timed_out']:
         #         raise Exception('Timed out!')
@@ -4244,7 +4244,7 @@ class App(QtCore.QObject):
             filename = recent['filename'].split('/')[-1].split('\\')[-1]
 
             try:
-                action = QtWidgets.QAction(QtGui.QIcon(icons[recent["kind"]]), filename, self)
+                action = QtGui.QAction(QtGui.QIcon(icons[recent["kind"]]), filename, self)
 
                 # Attach callback
                 o = make_callback(openers[recent["kind"]], recent['filename'])
@@ -4402,10 +4402,16 @@ def main():
     """Console/GUI entry point. Used by the `flatcam` command installed via
     the package's entry point, and by `python -m FlatCAMApp`."""
     app = QtWidgets.QApplication(sys.argv)
+    # Force the Fusion style with its standard palette for a consistent look
+    # across desktops. Without this, Qt6 adopts the desktop (GTK) palette, and
+    # some themes set the entry background (Base) equal to the window colour,
+    # making editable text fields look disabled.
+    app.setStyle("Fusion")
+    app.setPalette(app.style().standardPalette())
     # Legacy resource search paths (used by QIcon("share:...") style lookups).
     QtCore.QDir.setSearchPaths("share", ["share", "share/flatcam", "/usr/share/flatcam"])
     fc = App()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

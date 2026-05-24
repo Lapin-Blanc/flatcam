@@ -6,7 +6,7 @@
 # MIT Licence                                              #
 ############################################################
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 import FlatCAMApp
 from camlib import *
 from FlatCAMTool import FlatCAMTool

@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PySide6 import QtWidgets
 from FlatCAMTool import FlatCAMTool
 from copy import copy
 from math import sqrt

@@ -12,3 +12,4 @@ dist/
 # AppImage build artifacts
 AppDir/
 *.AppImage
+.venv6/

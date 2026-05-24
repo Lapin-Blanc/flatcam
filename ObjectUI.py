@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 #from GUIElements import *
 from GUIElements import FCEntry, FloatEntry, EvalEntry, FCCheckBox, \
     LengthEntry, FCTextArea, IntEntry, RadioSet, OptionalInputSection
@@ -868,7 +868,7 @@ class GerberObjectUI(ObjectUI):
 #
 #     app = QtWidgets.QApplication(sys.argv)
 #     fc = GerberObjectUI()
-#     sys.exit(app.exec_())
+#     sys.exit(app.exec())
 #
 #
 # if __name__ == '__main__':

@@ -4,9 +4,9 @@ Shows intput and output text. Allows to enter commands. Supports history.
 """
 
 import html
-from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QKeySequence, QTextCursor
-from PyQt5.QtWidgets import QTextEdit, \
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtGui import QKeySequence, QTextCursor
+from PySide6.QtWidgets import QTextEdit, \
                            QVBoxLayout, QWidget
 
 
@@ -15,8 +15,8 @@ class _ExpandableTextEdit(QTextEdit):
     Class implements edit line, which expands themselves automatically
     """
 
-    historyNext = pyqtSignal()
-    historyPrev = pyqtSignal()
+    historyNext = Signal()
+    historyPrev = Signal()
 
     def __init__(self, termwidget, *args):
         QTextEdit.__init__(self, *args)

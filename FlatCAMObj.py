@@ -7,7 +7,7 @@
 ############################################################
 
 from io import StringIO
-from PyQt5 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 from copy import copy
 from ObjectUI import *
 import FlatCAMApp
@@ -50,7 +50,7 @@ class FlatCAMObj(QtCore.QObject):
     # The app should set this value.
     app = None
     
-    option_changed = QtCore.pyqtSignal(QtCore.QObject, str)
+    option_changed = QtCore.Signal(QtCore.QObject, str)
 
     def __init__(self, name):
         """
@@ -1132,7 +1132,7 @@ class FlatCAMCNCjob(FlatCAMObj, CNCjob):
 
         try:
             filename = str(QtWidgets.QFileDialog.getSaveFileName(caption="Export G-Code ...",
-                                                         directory=self.app.defaults["last_folder"])[0])
+                                                         dir=self.app.defaults["last_folder"])[0])
         except TypeError:
             filename = str(QtWidgets.QFileDialog.getSaveFileName(caption="Export G-Code ...")[0])
 
