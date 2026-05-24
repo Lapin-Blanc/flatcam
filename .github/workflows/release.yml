@@ -64,7 +64,9 @@ jobs:
           pip install -e . nuitka
       - name: Build (Nuitka standalone)
         # anti-bloat can conflict with the Qt plugin over module inclusion; disable it.
-        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+        # rtree loads spatialindex_c-64.dll at runtime via ctypes (not a link-time
+        # dependency), so Nuitka misses it -> include rtree's package data (DLLs).
+        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --include-data-dir=share=share --include-package=tclCommands --include-package-data=rtree --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
       - name: Zip
         shell: pwsh
         run: |
