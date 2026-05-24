@@ -64,9 +64,18 @@ jobs:
           pip install -e . nuitka
       - name: Build (Nuitka standalone)
         # anti-bloat can conflict with the Qt plugin over module inclusion; disable it.
-        # rtree loads spatialindex_c-64.dll at runtime via ctypes (not a link-time
-        # dependency), so Nuitka misses it -> include rtree's package data (DLLs).
-        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --include-data-dir=share=share --include-package=tclCommands --include-package-data=rtree --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+      - name: Bundle rtree spatialindex DLLs
+        # rtree loads spatialindex_c-64.dll (+ its dependency spatialindex-64.dll)
+        # at runtime via ctypes from <rtree>/lib; Nuitka's data handling renames/
+        # drops them, so copy the real DLLs into the dist where finder.py looks.
+        shell: pwsh
+        run: |
+          $rtreeDir = python -c "import os, rtree; print(os.path.dirname(rtree.__file__))"
+          $dest = "dist-nuitka/flatcam_run.dist/rtree/lib"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Get-ChildItem -Path $rtreeDir -Recurse -Filter "spatialindex*.dll" | ForEach-Object { Copy-Item $_.FullName $dest -Force }
+          Get-ChildItem $dest
       - name: Zip
         shell: pwsh
         run: |
