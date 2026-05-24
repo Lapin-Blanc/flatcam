@@ -46,35 +46,10 @@ jobs:
             FlatCAM-*-linux-x86_64.tar.gz
             FlatCAM-*-x86_64.AppImage
 
+  # Windows uses Nuitka (compiled native binary): unlike the PyInstaller
+  # bootloader, it is not flagged by antivirus engines (0/70 on VirusTotal,
+  # vs 3/70 incl. Microsoft Defender for the PyInstaller .exe).
   windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install (deps + app + pyinstaller)
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e . pyinstaller
-      - name: Build PyInstaller bundle
-        run: pyinstaller --noconfirm FlatCAM.spec
-      - name: Zip
-        shell: pwsh
-        run: |
-          $v = (python -c "from importlib.metadata import version; print(version('FlatCAM'))")
-          Compress-Archive -Path dist/FlatCAM/* -DestinationPath "FlatCAM-$v-windows-x86_64.zip"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: windows
-          path: "FlatCAM-*-windows-x86_64.zip"
-
-  # Experimental: Nuitka build (compiled binary) to compare antivirus
-  # false-positive rates against the PyInstaller .exe. Artifact only, not
-  # attached to the release for now.
-  windows-nuitka:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -94,11 +69,11 @@ jobs:
         shell: pwsh
         run: |
           $v = (python -c "from importlib.metadata import version; print(version('FlatCAM'))")
-          Compress-Archive -Path dist-nuitka/flatcam_run.dist/* -DestinationPath "FlatCAM-$v-windows-x86_64-nuitka.zip"
+          Compress-Archive -Path dist-nuitka/flatcam_run.dist/* -DestinationPath "FlatCAM-$v-windows-x86_64.zip"
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-nuitka
-          path: "FlatCAM-*-windows-x86_64-nuitka.zip"
+          name: windows
+          path: "FlatCAM-*-windows-x86_64.zip"
 
   release:
     needs: [linux, windows]
