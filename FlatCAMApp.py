@@ -1178,7 +1178,7 @@ class App(QtCore.QObject):
         self.save_defaults()
 
     def on_file_exit(self):
-        QtWidgets.qApp.quit()
+        QtWidgets.QApplication.instance().quit()
 
     def save_defaults(self, silent=False):
         """
@@ -1727,7 +1727,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Gerber",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Gerber")
 
@@ -1755,7 +1755,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Excellon",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Excellon")
 
@@ -1783,7 +1783,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open G-Code",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open G-Code")
 
@@ -1811,7 +1811,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Project",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Open Project")
 
@@ -1865,7 +1865,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Export SVG",
-                                                         directory=self.get_last_folder(), filter="*.svg")
+                                                         dir=self.get_last_folder(), filter="*.svg")
         except TypeError:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Export SVG")
 
@@ -1889,7 +1889,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Import SVG",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getOpenFileName(caption="Import SVG")
 
@@ -1933,7 +1933,7 @@ class App(QtCore.QObject):
 
         try:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Save Project As ...",
-                                                         directory=self.get_last_folder())
+                                                         dir=self.get_last_folder())
         except TypeError:
             filename = QtWidgets.QFileDialog.getSaveFileName(caption="Save Project As ...")
 

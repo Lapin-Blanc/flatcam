@@ -1132,7 +1132,7 @@ class FlatCAMCNCjob(FlatCAMObj, CNCjob):
 
         try:
             filename = str(QtWidgets.QFileDialog.getSaveFileName(caption="Export G-Code ...",
-                                                         directory=self.app.defaults["last_folder"])[0])
+                                                         dir=self.app.defaults["last_folder"])[0])
         except TypeError:
             filename = str(QtWidgets.QFileDialog.getSaveFileName(caption="Export G-Code ...")[0])
 
