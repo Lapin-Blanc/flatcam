@@ -1,5 +1,4 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5 import Qt
 from GUIElements import FCEntry, FCButton
 from FlatCAMTool import FlatCAMTool
 from camlib import *
@@ -265,11 +264,11 @@ class ToolTransform(FlatCAMTool):
 
                 # execute mirroring
                 for obj in obj_list:
-                    if axis is 'X':
+                    if axis == 'X':
                         obj.mirror('X', [px, py])
                         obj.plot()
                         self.app.inform.emit('Flipped on the Y axis ...')
-                    elif axis is 'Y':
+                    elif axis == 'Y':
                         obj.mirror('Y', [px, py])
                         obj.plot()
                         self.app.inform.emit('Flipped on the X axis ...')
@@ -306,9 +305,9 @@ class ToolTransform(FlatCAMTool):
                 yminimal = min(yminlist)
 
                 for obj in obj_list:
-                    if axis is 'X':
+                    if axis == 'X':
                         obj.skew(num, 0, point=(xminimal, yminimal))
-                    elif axis is 'Y':
+                    elif axis == 'Y':
                         obj.skew(0, num, point=(xminimal, yminimal))
                     obj.plot()
                 self.app.inform.emit('Object was skewed on %s axis ...' % str(axis))

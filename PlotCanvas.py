@@ -6,7 +6,7 @@
 # MIT Licence                                              #
 ############################################################
 
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtCore
 
 from matplotlib import use as mpl_use
 mpl_use("Qt5Agg")

@@ -272,7 +272,7 @@ def getsvggeo(node):
     :return: List of Shapely geometry
     :rtype: list
     """
-    kind = re.search('(?:\{.*\})?(.*)$', node.tag).group(1)
+    kind = re.search(r'(?:\{.*\})?(.*)$', node.tag).group(1)
     geo = []
 
     # Recurse

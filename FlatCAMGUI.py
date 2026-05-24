@@ -5,7 +5,7 @@
 # Date: 2/5/2014                                           #
 # MIT Licence                                              #
 ############################################################
-from PyQt5 import QtGui, QtCore, QtWidgets, Qt
+from PyQt5 import QtGui, QtCore, QtWidgets
 from GUIElements import *
 
 

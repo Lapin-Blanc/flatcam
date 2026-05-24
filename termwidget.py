@@ -5,8 +5,8 @@ Shows intput and output text. Allows to enter commands. Supports history.
 
 import html
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QColor, QKeySequence, QPalette, QTextCursor
-from PyQt5.QtWidgets import QLineEdit, QSizePolicy, QTextEdit, \
+from PyQt5.QtGui import QKeySequence, QTextCursor
+from PyQt5.QtWidgets import QTextEdit, \
                            QVBoxLayout, QWidget
 
 

@@ -17,7 +17,7 @@ import re
 import webbrowser
 import os
 import tkinter
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 import time  # Just used for debugging. Double check before removing.
 from xml.dom.minidom import parseString as parse_xml_string
 from contextlib import contextmanager
@@ -30,12 +30,11 @@ from FlatCAMWorker import Worker
 import ObjectCollection
 from FlatCAMObj import FlatCAMCNCjob, FlatCAMExcellon, FlatCAMGerber, FlatCAMGeometry, FlatCAMObj
 from PlotCanvas import PlotCanvas
-from FlatCAMGUI import FlatCAMGUI, GlobalOptionsUI, FlatCAMActivityView, FlatCAMInfoBar
+from FlatCAMGUI import FlatCAMGUI, GlobalOptionsUI
 from FlatCAMCommon import LoudDict
 from FlatCAMShell import FCShell
 from FlatCAMDraw import FlatCAMDraw
 from FlatCAMProcess import *
-from GUIElements import FCInputDialog
 from ToolMeasurement import Measurement
 from ToolDblSided import DblSidedTool
 from ToolTransform import ToolTransform
@@ -788,7 +787,7 @@ class App(QtCore.QObject):
             raise unknownException
 
     def display_tcl_error(self, error, error_info=None):
-        """
+        r"""
         escape bracket [ with \  otherwise there is error
         "ERROR: missing close-bracket" instead of real error
         :param error: it may be text  or exception
@@ -925,7 +924,7 @@ class App(QtCore.QObject):
         """
 
         # Type of message in brackets at the begining of the message.
-        match = re.search("\[([^\]]+)\](.*)", msg)
+        match = re.search(r"\[([^\]]+)\](.*)", msg)
         if match:
             level = match.group(1)
             msg_ = match.group(2)

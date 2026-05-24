@@ -6,23 +6,17 @@
 # MIT Licence                                              #
 ############################################################
 
-from PyQt5 import QtGui, QtCore, QtWidgets, Qt
+from PyQt5 import QtGui, QtCore, QtWidgets
 import FlatCAMApp
 from camlib import *
 from FlatCAMTool import FlatCAMTool
 from ObjectUI import LengthEntry, RadioSet
 
 from shapely.geometry import Polygon, LineString, Point, LinearRing
-from shapely.geometry import MultiPoint, MultiPolygon
-from shapely.geometry import box as shply_box
 from shapely.ops import unary_union
 import shapely.affinity as affinity
-from shapely.wkt import loads as sloads
-from shapely.wkt import dumps as sdumps
-from shapely.geometry.base import BaseGeometry
 
-from numpy import arctan2, inf as Inf, array, sqrt, pi, ceil, sin, cos, sign, dot
-from numpy.linalg import solve
+from numpy import arctan2, inf as Inf, array, sqrt, sign, dot
 
 #from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
 
@@ -1016,7 +1010,7 @@ class FlatCAMDraw(QtCore.QObject):
         :return: None
         """
         # Selection with left mouse button
-        if self.active_tool is not None and event.button is 1:
+        if self.active_tool is not None and event.button == 1:
             # Dispatch event to active_tool
             msg = self.active_tool.click(self.snap(event.xdata, event.ydata))
             self.app.inform.emit(msg)
@@ -1491,7 +1485,7 @@ class FlatCAMDraw(QtCore.QObject):
         for param in [tooldia, overlap, margin]:
             if not isinstance(param, float):
                 param_name = [k for k, v in list(locals().items()) if v is param][0]
-                self.app.inform.emit("[warning] Invalid value for {}".format())
+                self.app.inform.emit("[warning] Invalid value for {}".format(param_name))
 
         # Todo: Check for valid method.
 
