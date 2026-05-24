@@ -7,7 +7,7 @@
 ############################################################
 
 from io import StringIO
-from PyQt4 import QtCore
+from PyQt5 import QtCore, QtWidgets
 from copy import copy
 from ObjectUI import *
 import FlatCAMApp
@@ -15,6 +15,25 @@ import inspect  # TODO: For debugging only.
 from camlib import *
 from FlatCAMCommon import LoudDict
 from FlatCAMDraw import FlatCAMDraw
+from shapely.geometry.base import BaseMultipartGeometry
+
+
+def flatten_geometry(geometry):
+    """
+    Yield individual single-part Shapely geometries from any nesting of
+    lists/tuples and multipart geometries. Shapely 2.0 made multipart
+    geometries non-iterable, so we descend through .geoms explicitly.
+    """
+    if isinstance(geometry, BaseMultipartGeometry):
+        for geo in geometry.geoms:
+            for sub in flatten_geometry(geo):
+                yield sub
+    elif isinstance(geometry, (list, tuple)):
+        for geo in geometry:
+            for sub in flatten_geometry(geo):
+                yield sub
+    elif geometry is not None and not geometry.is_empty:
+        yield geometry
 
 
 ########################################
@@ -477,7 +496,7 @@ class FlatCAMGerber(FlatCAMObj, Gerber):
                            [pts[6], pts[7], pts[8]],
                            [pts[9], pts[10], pts[11]]]}
             cuts = cases[self.options['gaps']]
-            geo_obj.solid_geometry = cascaded_union([LineString(segment) for segment in cuts])
+            geo_obj.solid_geometry = unary_union([LineString(segment) for segment in cuts])
 
         # TODO: Check for None
         self.app.new_object("geometry", name, geo_init)
@@ -541,7 +560,7 @@ class FlatCAMGerber(FlatCAMObj, Gerber):
             if invert:
                 if type(geom) is MultiPolygon:
                     pl = []
-                    for p in geom:
+                    for p in geom.geoms:
                         pl.append(Polygon(p.exterior.coords[::-1], p.interiors))
                     geom = MultiPolygon(pl)
                 elif type(geom) is Polygon:
@@ -632,13 +651,9 @@ class FlatCAMGerber(FlatCAMObj, Gerber):
         if not FlatCAMObj.plot(self):
             return
 
-        geometry = self.solid_geometry
-
-        # Make sure geometry is iterable.
-        try:
-            _ = iter(geometry)
-        except TypeError:
-            geometry = [geometry]
+        # Flatten any multipart/nested geometry into individual polygons.
+        # Shapely 2.0 made multipart geometries non-iterable.
+        geometry = list(flatten_geometry(self.solid_geometry))
 
         if self.options["multicolored"]:
             linespec = '-'
@@ -798,12 +813,12 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
                 if drill.get('tool') == tool:
                     drill_cnt += 1
 
-            id = QtGui.QTableWidgetItem(tool)
+            id = QtWidgets.QTableWidgetItem(tool)
             id.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
             self.ui.tools_table.setItem(i, 0, id)  # Tool name/id
-            dia = QtGui.QTableWidgetItem(str(self.tools[tool]['C']))
+            dia = QtWidgets.QTableWidgetItem(str(self.tools[tool]['C']))
             dia.setFlags(QtCore.Qt.ItemIsEnabled)
-            drill_count = QtGui.QTableWidgetItem('%d' % drill_cnt)
+            drill_count = QtWidgets.QTableWidgetItem('%d' % drill_cnt)
             drill_count.setFlags(QtCore.Qt.ItemIsEnabled)
             self.ui.tools_table.setItem(i, 1, dia)  # Diameter
             self.ui.tools_table.setItem(i, 2, drill_count)  # Number of drills per tool
@@ -817,9 +832,9 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
         self.ui.tools_table.resizeColumnsToContents()
         self.ui.tools_table.resizeRowsToContents()
         horizontal_header = self.ui.tools_table.horizontalHeader()
-        horizontal_header.setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-        horizontal_header.setResizeMode(1, QtGui.QHeaderView.Stretch)
-        horizontal_header.setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
+        horizontal_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        horizontal_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        horizontal_header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         # horizontal_header.setStretchLastSection(True)
         self.ui.tools_table.verticalHeader().hide()
         self.ui.tools_table.setSortingEnabled(True)
@@ -1021,14 +1036,13 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
         if not FlatCAMObj.plot(self):
             return
 
-        try:
-            _ = iter(self.solid_geometry)
-        except TypeError:
-            self.solid_geometry = [self.solid_geometry]
+        # Flatten any multipart/nested geometry into individual polygons.
+        # Shapely 2.0 made multipart geometries non-iterable.
+        geometry = list(flatten_geometry(self.solid_geometry))
 
         # Plot excellon (All polygons?)
         if self.options["solid"]:
-            for geo in self.solid_geometry:
+            for geo in geometry:
                 patch = PolygonPatch(geo,
                                      facecolor="#C40000",
                                      edgecolor="#750000",
@@ -1036,7 +1050,7 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
                                      zorder=3)
                 self.axes.add_patch(patch)
         else:
-            for geo in self.solid_geometry:
+            for geo in geometry:
                 x, y = geo.exterior.coords.xy
                 self.axes.plot(x, y, 'r-')
                 for ints in geo.interiors:
@@ -1117,10 +1131,10 @@ class FlatCAMCNCjob(FlatCAMObj, CNCjob):
         self.read_form()
 
         try:
-            filename = str(QtGui.QFileDialog.getSaveFileName(caption="Export G-Code ...",
-                                                         directory=self.app.defaults["last_folder"]))
+            filename = str(QtWidgets.QFileDialog.getSaveFileName(caption="Export G-Code ...",
+                                                         directory=self.app.defaults["last_folder"])[0])
         except TypeError:
-            filename = str(QtGui.QFileDialog.getSaveFileName(caption="Export G-Code ..."))
+            filename = str(QtWidgets.QFileDialog.getSaveFileName(caption="Export G-Code ...")[0])
 
         preamble = str(self.ui.prepend_text.get_value())
         postamble = str(self.ui.append_text.get_value())
@@ -1160,7 +1174,8 @@ class FlatCAMCNCjob(FlatCAMObj, CNCjob):
 
             yield line
 
-        raise StopIteration
+        # PEP 479: a generator must not raise StopIteration; just return.
+        return
 
     def export_gcode(self, filename, preamble='', postamble='', processor=''):
 
@@ -1454,7 +1469,8 @@ class FlatCAMGeometry(FlatCAMObj, Geometry):
                 if isinstance(geo, Polygon):
                     yield geo
 
-            raise StopIteration
+            # PEP 479: a generator must not raise StopIteration; just return.
+            return
 
         # Initializes the new geometry object
         def gen_paintarea(geo_obj, app_obj):
@@ -1662,6 +1678,12 @@ class FlatCAMGeometry(FlatCAMObj, Geometry):
         return factor
 
     def plot_element(self, element):
+        # Shapely 2.0 multipart geometries are not iterable; descend via .geoms.
+        if isinstance(element, BaseMultipartGeometry):
+            for sub_el in element.geoms:
+                self.plot_element(sub_el)
+            return
+
         try:
             for sub_el in element:
                 self.plot_element(sub_el)

@@ -40,11 +40,16 @@ def PolygonPath(polygon):
         vals = ones(n, dtype=Path.code_type) * Path.LINETO
         vals[0] = Path.MOVETO
         return vals
+    def to_array(ob):
+        # Shapely 2.0 removed the array interface from geometries, so
+        # asarray(ring) no longer yields the coordinate array. Use .coords
+        # when available (Shapely), fall back to the raw object (GeoJSON).
+        return asarray(getattr(ob, 'coords', None) if hasattr(ob, 'coords') else ob)
     vertices = concatenate(
-                    [asarray(this.exterior)] 
-                    + [asarray(r) for r in this.interiors])
+                    [to_array(this.exterior)]
+                    + [to_array(r) for r in this.interiors])
     codes = concatenate(
-                [coding(this.exterior)] 
+                [coding(this.exterior)]
                 + [coding(r) for r in this.interiors])
     return Path(vertices, codes)
 
