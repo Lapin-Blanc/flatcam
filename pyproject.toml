@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=64", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "FlatCAM"
-version = "8.5"
+dynamic = ["version"]          # version derived from git tags by setuptools-scm
 description = "2D Computer-Aided PCB Manufacturing"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -64,3 +64,9 @@ packages = ["descartes", "tclCommands", "share"]
 # and loads them via relative "share/<file>" paths.
 [tool.setuptools.package-data]
 share = ["*.png", "*.gif", "*.svg", "*.ico"]
+
+# Version comes from git tags (e.g. tag "v8.5.1" -> version 8.5.1).
+# fallback_version is used when building outside a git checkout (e.g. sdist
+# without .git, or a shallow clone with no tags).
+[tool.setuptools_scm]
+fallback_version = "8.5.0"

@@ -8,3 +8,7 @@ tests/tmp/
 build/
 dist/
 *.egg-info/
+
+# AppImage build artifacts
+AppDir/
+*.AppImage
