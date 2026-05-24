@@ -4402,6 +4402,12 @@ def main():
     """Console/GUI entry point. Used by the `flatcam` command installed via
     the package's entry point, and by `python -m FlatCAMApp`."""
     app = QtWidgets.QApplication(sys.argv)
+    # Force the Fusion style with its standard palette for a consistent look
+    # across desktops. Without this, Qt6 adopts the desktop (GTK) palette, and
+    # some themes set the entry background (Base) equal to the window colour,
+    # making editable text fields look disabled.
+    app.setStyle("Fusion")
+    app.setPalette(app.style().standardPalette())
     # Legacy resource search paths (used by QIcon("share:...") style lookups).
     QtCore.QDir.setSearchPaths("share", ["share", "share/flatcam", "/usr/share/flatcam"])
     fc = App()
