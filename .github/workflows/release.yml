@@ -68,7 +68,7 @@ jobs:
         # (pulled in transitively by matplotlib, ~7.5 MB) and the Qt modules beyond
         # Core/Gui/Widgets. NB: this only removes the Python bindings (.pyd); the Qt
         # *DLLs* are copied by the pyside6 plugin regardless and are pruned below.
-        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --nofollow-import-to=PIL._avif --nofollow-import-to=PySide6.QtNetwork --nofollow-import-to=PySide6.QtPdf --nofollow-import-to=PySide6.QtQml --nofollow-import-to=PySide6.QtQuick --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+        run: python -m nuitka --standalone --assume-yes-for-downloads --windows-console-mode=attach --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --nofollow-import-to=PIL._avif --nofollow-import-to=PySide6.QtNetwork --nofollow-import-to=PySide6.QtPdf --nofollow-import-to=PySide6.QtQml --nofollow-import-to=PySide6.QtQuick --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
       - name: Bundle rtree spatialindex DLLs
         # rtree loads spatialindex_c-64.dll (+ its dependency spatialindex-64.dll)
         # at runtime via ctypes from <rtree>/lib; Nuitka's data handling renames/
