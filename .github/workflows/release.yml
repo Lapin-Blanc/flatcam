@@ -68,7 +68,7 @@ jobs:
         # (pulled in transitively by matplotlib, ~7.5 MB) and the Qt modules beyond
         # Core/Gui/Widgets. NB: this only removes the Python bindings (.pyd); the Qt
         # *DLLs* are copied by the pyside6 plugin regardless and are pruned below.
-        run: python -m nuitka --standalone --assume-yes-for-downloads --windows-console-mode=attach --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --nofollow-import-to=PIL._avif --nofollow-import-to=PySide6.QtNetwork --nofollow-import-to=PySide6.QtPdf --nofollow-import-to=PySide6.QtQml --nofollow-import-to=PySide6.QtQuick --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+        run: python -m nuitka --standalone --assume-yes-for-downloads --windows-console-mode=attach --windows-icon-from-ico=share/flatcam_icon.ico --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --nofollow-import-to=PIL._avif --nofollow-import-to=PySide6.QtNetwork --nofollow-import-to=PySide6.QtPdf --nofollow-import-to=PySide6.QtQml --nofollow-import-to=PySide6.QtQuick --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
       - name: Bundle rtree spatialindex DLLs
         # rtree loads spatialindex_c-64.dll (+ its dependency spatialindex-64.dll)
         # at runtime via ctypes from <rtree>/lib; Nuitka's data handling renames/
@@ -97,15 +97,26 @@ jobs:
           foreach ($t in $targets) { $p = Join-Path $dist $t; if (Test-Path $p) { Remove-Item $p -Force; Write-Host "pruned $t" } }
           $tls = "$dist/PySide6/qt-plugins/tls"
           if (Test-Path $tls) { Remove-Item $tls -Recurse -Force; Write-Host "pruned qt-plugins/tls" }
-      - name: Zip
+      - name: Zip (portable bundle)
         shell: pwsh
         run: |
           $v = (python -c "from importlib.metadata import version; print(version('FlatCAM'))")
           Compress-Archive -Path dist-nuitka/flatcam_run.dist/* -DestinationPath "FlatCAM-$v-windows-x86_64.zip"
+      - name: Build installer (Inno Setup)
+        # Per-user installer (no UAC). iscc is not guaranteed on the runner, so
+        # install Inno via choco. The .iss SourceDir defaults to the dist path.
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $v = (python -c "from importlib.metadata import version; print(version('FlatCAM'))")
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DAppVersion=$v packaging\flatcam.iss
+          Get-ChildItem dist-installer
       - uses: actions/upload-artifact@v4
         with:
           name: windows
-          path: "FlatCAM-*-windows-x86_64.zip"
+          path: |
+            FlatCAM-*-windows-x86_64.zip
+            dist-installer/FlatCAM-*-windows-x86_64-setup.exe
 
   release:
     needs: [linux, windows]
