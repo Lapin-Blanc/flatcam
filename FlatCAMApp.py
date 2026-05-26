@@ -43,6 +43,25 @@ import tclCommands
 from camlib import *
 
 
+def _resolve_app_version():
+    """Return the real distribution version for display and update checks.
+
+    setuptools-scm writes _version.py at build/install time (see pyproject.toml);
+    fall back to the installed package metadata, then to a dev marker so the app
+    still runs from a bare source checkout.
+    """
+    try:
+        from _version import version
+        return str(version)
+    except Exception:
+        pass
+    try:
+        from importlib.metadata import version as _metadata_version
+        return _metadata_version("FlatCAM")
+    except Exception:
+        return "8.6.x-dev"
+
+
 ########################################
 ##                App                 ##
 ########################################
@@ -75,14 +94,20 @@ class App(QtCore.QObject):
     handler.setFormatter(formatter)
     log.addHandler(handler)
 
-    ## Version
+    ## Project file format version (written into .FlatPrj on save). This is the
+    ## data schema version, NOT the application version -- do not bump it for
+    ## app releases, only when the saved-project format actually changes.
     version = 8.5
     #version_date_str = "2016/7"
     version_date = (0, 0, 0)
     version_name = None
 
-    ## URL for update checks and statistics
-    version_url = "http://flatcam.org/version"
+    ## Application version shown in the UI and used for update checks. Derived
+    ## from the packaging version (setuptools-scm git tag), e.g. "8.6.1".
+    app_version = _resolve_app_version()
+
+    ## Update checks query this fork's GitHub Releases (no stats are sent).
+    releases_api_url = "https://api.github.com/repos/Lapin-Blanc/flatcam/releases/latest"
 
     ## App URL
     app_url = "http://flatcam.org"
@@ -215,7 +240,7 @@ class App(QtCore.QObject):
 
         QtCore.QObject.__init__(self)
 
-        self.ui = FlatCAMGUI(self.version, name=self.version_name)
+        self.ui = FlatCAMGUI(self.app_version, name=self.version_name)
         self.ui.geom_update.connect(self.save_geometry)
 
         #### Plot Area ####
@@ -493,7 +518,7 @@ class App(QtCore.QObject):
 
         #### Check for updates ####
         # Separate thread (Not worker)
-        App.log.info("Checking for updates in backgroud (this is version %s)." % str(self.version))
+        App.log.info("Checking for updates in backgroud (this is version %s)." % str(self.app_version))
 
         self.worker2 = Worker(self, name="worker2")
         self.thr2 = QtCore.QThread()
@@ -601,7 +626,7 @@ class App(QtCore.QObject):
         self.shell.setWindowIcon(self.ui.app_icon)
         self.shell.setWindowTitle("FlatCAM Shell")
         self.shell.resize(*self.defaults["shell_shape"])
-        self.shell.append_output("FlatCAM {}".format(self.version))
+        self.shell.append_output("FlatCAM {}".format(self.app_version))
         if self.version_name:
             self.shell.append_output(" - {}".format(self.version_name))
         self.shell.append_output("\n(c) 2014-{} Juan Pablo Caram\n\n".format(
@@ -1121,9 +1146,7 @@ class App(QtCore.QObject):
         """
         self.report_usage("on_about")
 
-        version = self.version
-        version_date_str = self.version_date_str
-        version_year = self.version_date[0]
+        version = self.app_version
 
         class AboutDialog(QtWidgets.QDialog):
             def __init__(self, parent=None):
@@ -1145,17 +1168,19 @@ class App(QtCore.QObject):
 
                 title = QtWidgets.QLabel(
                     "<font size=8><B>FlatCAM</B></font><BR>"
-                    "Version {} ({})<BR>"
+                    "Version {}<BR>"
                     "<BR>"
                     "2D Computer-Aided Printed Circuit Board<BR>"
                     "Manufacturing.<BR>"
                     "<BR>"
-                    "(c) 2014-{} Juan Pablo Caram".format(
-                        version,
-                        version_date_str,
-                        version_year
+                    "(c) 2014-2016 Juan Pablo Caram<BR>"
+                    "Modernization fork: "
+                    "<a href='https://github.com/Lapin-Blanc/flatcam'>"
+                    "github.com/Lapin-Blanc/flatcam</a>".format(
+                        version
                     )
                 )
+                title.setOpenExternalLinks(True)
                 layout2.addWidget(title, stretch=1)
 
                 layout3 = QtWidgets.QHBoxLayout()
@@ -4277,28 +4302,45 @@ class App(QtCore.QObject):
         FCProcess.app = self
         FCProcessContainer.app = self
 
+    @staticmethod
+    def _version_tuple(version_str):
+        """Parse a version string into a comparable tuple of ints.
+
+        Keeps only the leading numeric dotted segments, so local/dev suffixes
+        like "8.6.1.dev3+gabc1234" compare as (8, 6, 1).
+        """
+        head = re.split(r"[+-]", str(version_str), maxsplit=1)[0]
+        parts = []
+        for chunk in head.split("."):
+            if chunk.isdigit():
+                parts.append(int(chunk))
+            else:
+                break
+        return tuple(parts)
+
     def version_check(self):
         """
-        Checks for the latest version of the program. Alerts the
-        user if theirs is outdated. This method is meant to be run
-        in a separate thread.
+        Checks this fork's latest GitHub release and alerts the user if a newer
+        version is available. No usage statistics are sent. Meant to run in a
+        separate thread.
 
         :return: None
         """
-
         self.log.debug("version_check()")
-        full_url = App.version_url + \
-            "?s=" + str(self.defaults['serial']) + \
-            "&v=" + str(self.version) + \
-            "&os=" + str(self.os) + \
-            "&" + urllib.parse.urlencode(self.defaults["stats"])
-        App.log.debug("Checking for updates @ %s" % full_url)
+        App.log.debug("Checking for updates @ %s" % App.releases_api_url)
+
+        request = urllib.request.Request(
+            App.releases_api_url,
+            headers={
+                "User-Agent": "FlatCAM/%s" % self.app_version,
+                "Accept": "application/vnd.github+json",
+            },
+        )
 
         ### Get the data
         try:
-            f = urllib.request.urlopen(full_url)
-        except:
-            # App.log.warning("Failed checking for latest version. Could not connect.")
+            f = urllib.request.urlopen(request, timeout=10)
+        except Exception:
             self.log.warning("Failed checking for latest version. Could not connect.")
             self.inform.emit("[warning] Failed checking for latest version. Could not connect.")
             return
@@ -4309,24 +4351,29 @@ class App(QtCore.QObject):
             App.log.error("Could not parse information about latest version.")
             self.inform.emit("[error] Could not parse information about latest version.")
             App.log.debug("json.load(): %s" % str(e))
+            return
+        finally:
             f.close()
+
+        latest_tag = str(data.get("tag_name", "")).lstrip("v")
+        if not latest_tag:
+            self.log.warning("No release tag found in the GitHub response.")
             return
 
-        f.close()
-
         ### Latest version?
-        if self.version >= data["version"]:
+        if self._version_tuple(self.app_version) >= self._version_tuple(latest_tag):
             App.log.debug("FlatCAM is up to date!")
             self.inform.emit("[success] FlatCAM is up to date!")
             return
 
         App.log.debug("Newer version available.")
+        release_url = data.get("html_url", App.app_url)
         self.message.emit(
             "Newer Version Available",
-            str("There is a newer version of FlatCAM " +
-                           "available for download:<br><br>" +
-                           "<B>" + data["name"] + "</b><br>" +
-                           data["message"].replace("\n", "<br>")),
+            str("There is a newer version of FlatCAM available for download:<br><br>"
+                "<B>%s</b><br>"
+                "<a href='%s'>%s</a>"
+                % (data.get("name") or latest_tag, release_url, release_url)),
             "info"
         )
 

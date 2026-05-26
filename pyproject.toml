@@ -67,5 +67,8 @@ share = ["*.png", "*.gif", "*.svg", "*.ico"]
 # Version comes from git tags (e.g. tag "v8.5.1" -> version 8.5.1).
 # fallback_version is used when building outside a git checkout (e.g. sdist
 # without .git, or a shallow clone with no tags).
+# version_file writes the resolved version to _version.py at build/install time,
+# so the running app (incl. the frozen Nuitka bundle) can read its real version.
 [tool.setuptools_scm]
 fallback_version = "8.5.0"
+version_file = "_version.py"
