@@ -64,7 +64,11 @@ jobs:
           pip install -e . nuitka
       - name: Build (Nuitka standalone)
         # anti-bloat can conflict with the Qt plugin over module inclusion; disable it.
-        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
+        # --nofollow-import-to drops modules FlatCAM never uses: PIL's AVIF codec
+        # (pulled in transitively by matplotlib, ~7.5 MB) and the Qt modules beyond
+        # Core/Gui/Widgets. NB: this only removes the Python bindings (.pyd); the Qt
+        # *DLLs* are copied by the pyside6 plugin regardless and are pruned below.
+        run: python -m nuitka --standalone --assume-yes-for-downloads --enable-plugin=pyside6 --enable-plugin=tk-inter --disable-plugin=anti-bloat --nofollow-import-to=PIL._avif --nofollow-import-to=PySide6.QtNetwork --nofollow-import-to=PySide6.QtPdf --nofollow-import-to=PySide6.QtQml --nofollow-import-to=PySide6.QtQuick --include-data-dir=share=share --include-package=tclCommands --output-dir=dist-nuitka --output-filename=flatcam.exe flatcam_run.py
       - name: Bundle rtree spatialindex DLLs
         # rtree loads spatialindex_c-64.dll (+ its dependency spatialindex-64.dll)
         # at runtime via ctypes from <rtree>/lib; Nuitka's data handling renames/
@@ -76,6 +80,23 @@ jobs:
           New-Item -ItemType Directory -Force -Path $dest | Out-Null
           Get-ChildItem -Path $rtreeDir -Recurse -Filter "spatialindex*.dll" | ForEach-Object { Copy-Item $_.FullName $dest -Force }
           Get-ChildItem $dest
+      - name: Prune unused Qt modules
+        # FlatCAM uses only QtCore/QtGui/QtWidgets (+ Qt SVG for icons). The pyside6
+        # plugin still ships Qt PDF and Qt Network (with its OpenSSL/TLS backends,
+        # ~16 MB); nothing here loads them — version_check() uses urllib, not
+        # QtNetwork. Verified with dumpbin that qt6gui/qt6widgets don't depend on
+        # these DLLs. Keeps qt6svg.dll (icon loading).
+        shell: pwsh
+        run: |
+          $dist = "dist-nuitka/flatcam_run.dist"
+          $targets = @(
+            "qt6pdf.dll", "qt6network.dll",
+            "libcrypto-3-x64.dll", "libssl-3-x64.dll",
+            "PySide6/QtNetwork.pyd", "PySide6/QtPdf.pyd"
+          )
+          foreach ($t in $targets) { $p = Join-Path $dist $t; if (Test-Path $p) { Remove-Item $p -Force; Write-Host "pruned $t" } }
+          $tls = "$dist/PySide6/qt-plugins/tls"
+          if (Test-Path $tls) { Remove-Item $tls -Recurse -Force; Write-Host "pruned qt-plugins/tls" }
       - name: Zip
         shell: pwsh
         run: |
