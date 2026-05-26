@@ -3,11 +3,14 @@
 tests/tmp/
 # Claude Code personal (non-committed) settings
 .claude/settings.local.json
+.claude/settings.json
 
 # Python build artifacts
 build/
 dist/
 *.egg-info/
+dist-nuitka/
+dist-nuitka312/
 
 # AppImage build artifacts
 AppDir/
