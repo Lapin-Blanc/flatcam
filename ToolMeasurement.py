@@ -11,7 +11,6 @@ class Measurement(FlatCAMTool):
     def __init__(self, app):
         FlatCAMTool.__init__(self, app)
 
-        # self.setContentsMargins(0, 0, 0, 0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setContentsMargins(0, 0, 3, 0)
 
@@ -23,7 +22,6 @@ class Measurement(FlatCAMTool):
         self.label.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.label.setMargin(3)
         self.layout.addWidget(self.label)
-        # self.layout.setMargin(0)
         self.setVisible(False)
 
         self.click_subscription = None

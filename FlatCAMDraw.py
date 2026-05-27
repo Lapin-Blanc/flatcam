@@ -18,8 +18,6 @@ import shapely.affinity as affinity
 
 from numpy import arctan2, inf as Inf, array, sqrt, sign, dot
 
-#from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
-
 from rtree import index as rtindex
 
 from GUIElements import FCEntry
@@ -509,7 +507,6 @@ class FCRectangle(FCShapeTool):
     def make(self):
         p1 = self.points[0]
         p2 = self.points[1]
-        #self.geometry = LinearRing([p1, (p2[0], p1[1]), p2, (p1[0], p2[1])])
         self.geometry = DrawToolShape(Polygon([p1, (p2[0], p1[1]), p2, (p1[0], p2[1])]))
         self.complete = True
 
@@ -545,7 +542,6 @@ class FCPolygon(FCShapeTool):
         return None
 
     def make(self):
-        # self.geometry = LinearRing(self.points)
         self.geometry = DrawToolShape(Polygon(self.points))
         self.complete = True
 
@@ -582,7 +578,6 @@ class FCSelect(DrawTool):
     def __init__(self, draw_app):
         DrawTool.__init__(self, draw_app)
         self.storage = self.draw_app.storage
-        #self.shape_buffer = self.draw_app.shape_buffer
         self.selected = self.draw_app.selected
         self.start_msg = "Click on geometry to select"
 
@@ -604,7 +599,6 @@ class FCSelect(DrawTool):
 class FCMove(FCShapeTool):
     def __init__(self, draw_app):
         FCShapeTool.__init__(self, draw_app)
-        #self.shape_buffer = self.draw_app.shape_buffer
         self.origin = None
         self.destination = None
         self.start_msg = "Click on reference point."
@@ -633,11 +627,6 @@ class FCMove(FCShapeTool):
 
         # Delete old
         self.draw_app.delete_selected()
-
-        # # Select the new
-        # for g in self.geometry:
-        #     # Note that g is not in the app's buffer yet!
-        #     self.draw_app.set_selected(g)
 
         self.complete = True
 
@@ -740,20 +729,11 @@ class FlatCAMDraw(QtCore.QObject):
         ### Application menu ###
         self.menu = QtWidgets.QMenu("Drawing")
         self.app.ui.menu.insertMenu(self.app.ui.menutoolaction, self.menu)
-        # self.select_menuitem = self.menu.addAction(QtGui.QIcon('share:pointer16.png'), "Select 'Esc'")
-        # self.add_circle_menuitem = self.menu.addAction(QtGui.QIcon('share:circle16.png'), 'Add Circle')
-        # self.add_arc_menuitem = self.menu.addAction(QtGui.QIcon('share:arc16.png'), 'Add Arc')
-        # self.add_rectangle_menuitem = self.menu.addAction(QtGui.QIcon('share:rectangle16.png'), 'Add Rectangle')
-        # self.add_polygon_menuitem = self.menu.addAction(QtGui.QIcon('share:polygon16.png'), 'Add Polygon')
-        # self.add_path_menuitem = self.menu.addAction(QtGui.QIcon('share:path16.png'), 'Add Path')
         self.union_menuitem = self.menu.addAction(QtGui.QIcon('share/union16.png'), 'Polygon Union')
         self.intersection_menuitem = self.menu.addAction(QtGui.QIcon('share/intersection16.png'), 'Polygon Intersection')
-        # self.subtract_menuitem = self.menu.addAction(QtGui.QIcon('share:subtract16.png'), 'Polygon Subtraction')
         self.cutpath_menuitem = self.menu.addAction(QtGui.QIcon('share/cutpath16.png'), 'Cut Path')
         # Add Separator
         self.menu.addSeparator()
-        # self.move_menuitem = self.menu.addAction(QtGui.QIcon('share:move16.png'), "Move Objects 'm'")
-        # self.copy_menuitem = self.menu.addAction(QtGui.QIcon('share:copy16.png'), "Copy Objects 'c'")
         self.delete_menuitem = self.menu.addAction(QtGui.QIcon('share/deleteshape16.png'), "Delete Shape '-'")
         self.buffer_menuitem = self.menu.addAction(QtGui.QIcon('share/buffer16.png'), "Buffer selection 'b'")
         self.paint_menuitem = self.menu.addAction(QtGui.QIcon('share/paint16.png'), "Paint selection")
@@ -772,9 +752,6 @@ class FlatCAMDraw(QtCore.QObject):
         self.cid_canvas_move = None
         self.cid_canvas_key = None
         self.cid_canvas_key_release = None
-
-        # Connect the canvas
-        #self.connect_canvas_event_handlers()
 
         self.union_btn.triggered.connect(self.union)
         self.intersection_btn.triggered.connect(self.intersection)
@@ -825,9 +802,6 @@ class FlatCAMDraw(QtCore.QObject):
             self.tools[tool]["button"].triggered.connect(make_callback(tool))  # Events
             self.tools[tool]["button"].setCheckable(True)  # Checkable
 
-        # for snap_tool in [self.grid_snap_btn, self.corner_snap_btn]:
-        #     snap_tool.triggered.connect(lambda: self.toolbar_tool_toggle("grid_snap"))
-        #     snap_tool.setCheckable(True)
         self.grid_snap_btn.setCheckable(True)
         self.grid_snap_btn.triggered.connect(lambda: self.toolbar_tool_toggle("grid_snap"))
         self.corner_snap_btn.setCheckable(True)
@@ -1037,21 +1011,6 @@ class FlatCAMDraw(QtCore.QObject):
         self.on_canvas_move_effective(event)
         return None
 
-        # self.move_timer.stop()
-        #
-        # if self.active_tool is None:
-        #     return
-        #
-        # # Make a function to avoid late evaluation
-        # def make_callback():
-        #     def f():
-        #         self.on_canvas_move_effective(event)
-        #     return f
-        # callback = make_callback()
-        #
-        # self.move_timer.timeout.connect(callback)
-        # self.move_timer.start(500)  # Stops if aready running
-
     def on_canvas_move_effective(self, event):
         """
         Is called after timeout on timer set in on_canvas_move.
@@ -1091,15 +1050,12 @@ class FlatCAMDraw(QtCore.QObject):
             self.add_shape(geo)
 
             # Efficient plotting for fast animation
-
-            #self.canvas.canvas.restore_region(self.canvas.background)
             elements = self.plot_shape(geometry=geo.geo,
                                        linespec="b--",
                                        linewidth=1,
                                        animated=True)
             for el in elements:
                 self.axes.draw_artist(el)
-            #self.canvas.canvas.blit(self.axes.bbox)
 
         # Pointer (snapped)
         elements = self.axes.plot(x, y, 'bo', animated=True)
@@ -1131,14 +1087,11 @@ class FlatCAMDraw(QtCore.QObject):
         ### Abort the current action
         if event.key == 'escape':
             # TODO: ...?
-            #self.on_tool_select("select")
             self.app.inform.emit("Cancelled.")
 
             self.delete_utility_geometry()
 
             self.replot()
-            # self.select_btn.setChecked(True)
-            # self.on_tool_select('select')
             self.select_tool('select')
             return
 
@@ -1191,7 +1144,6 @@ class FlatCAMDraw(QtCore.QObject):
 
         :return: List of shapes.
         """
-        #return [shape for shape in self.shape_buffer if shape["selected"]]
         return self.selected
 
     def delete_selected(self):
@@ -1395,7 +1347,6 @@ class FlatCAMDraw(QtCore.QObject):
         :return: None
         """
         fcgeometry.solid_geometry = []
-        #for shape in self.shape_buffer:
         for shape in self.storage.get_objects():
             fcgeometry.solid_geometry.append(shape.geo)
 

@@ -142,15 +142,8 @@ class PlotCanvas(QtCore.QObject):
 
         # The canvas is the top level container (FigureCanvasQTAgg)
         self.canvas = FigureCanvas(self.figure)
-        # self.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
-        # self.canvas.setFocus()
-
-        #self.canvas.set_hexpand(1)
-        #self.canvas.set_vexpand(1)
-        #self.canvas.set_can_focus(True)  # For key press
 
         # Attach to parent
-        #self.container.attach(self.canvas, 0, 0, 600, 400)  # TODO: Height and width are num. columns??
         self.container.addWidget(self.canvas)  # Qt
 
         # Copy a bitmap of the canvas for quick animation.
@@ -162,7 +155,6 @@ class PlotCanvas(QtCore.QObject):
         self.cache_thread = QtCore.QThread()
         self.cache.moveToThread(self.cache_thread)
         self.cache_thread.started.connect(self.cache.run)
-        # self.connect()
         self.cache_thread.start()
         self.cache.new_screen.connect(self.on_new_screen)
 
@@ -170,10 +162,7 @@ class PlotCanvas(QtCore.QObject):
         self.canvas.mpl_connect('button_press_event', self.on_mouse_press)
         self.canvas.mpl_connect('button_release_event', self.on_mouse_release)
         self.canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
-        #self.canvas.connect('configure-event', self.auto_adjust_axes)
         self.canvas.mpl_connect('resize_event', self.auto_adjust_axes)
-        #self.canvas.add_events(Gdk.EventMask.SMOOTH_SCROLL_MASK)
-        #self.canvas.connect("scroll-event", self.on_scroll)
         self.canvas.mpl_connect('scroll_event', self.on_scroll)
         self.canvas.mpl_connect('key_press_event', self.on_key_down)
         self.canvas.mpl_connect('key_release_event', self.on_key_up)
@@ -413,11 +402,7 @@ class PlotCanvas(QtCore.QObject):
         """
 
         # So it can receive key presses
-        # self.canvas.grab_focus()
         self.canvas.setFocus()
-
-        # Event info
-        # z, direction = event.get_scroll_direction()
 
         if self.key is None:
 

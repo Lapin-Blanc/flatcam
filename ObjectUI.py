@@ -1,6 +1,5 @@
 import sys
 from PySide6 import QtGui, QtCore, QtWidgets
-#from GUIElements import *
 from GUIElements import FCEntry, FloatEntry, EvalEntry, FCCheckBox, \
     LengthEntry, FCTextArea, IntEntry, RadioSet, OptionalInputSection
 
@@ -186,7 +185,6 @@ class CNCObjectUI(ObjectUI):
         self.custom_box.addLayout(grid0)
 
         # Plot CB
-        # self.plot_cb = QtWidgets.QCheckBox('Plot')
         self.plot_cb = FCCheckBox('Plot')
         self.plot_cb.setToolTip(
             "Plot (show) this object."
@@ -482,11 +480,9 @@ class GeometryObjectUI(ObjectUI):
             "How to select the polygons to paint."
         )
         grid2.addWidget(selectlabel, 6, 0)
-        #grid3 = QtWidgets.QGridLayout()
         self.selectmethod_combo = RadioSet([
             {"label": "Single", "value": "single"},
             {"label": "All", "value": "all"},
-            #{"label": "Rectangle", "value": "rectangle"}
         ])
         grid2.addWidget(self.selectmethod_combo, 6, 1)
 
@@ -862,14 +858,3 @@ class GerberObjectUI(ObjectUI):
             "Generate the Geometry object."
         )
         self.custom_box.addWidget(self.generate_bb_button)
-
-
-# def main():
-#
-#     app = QtWidgets.QApplication(sys.argv)
-#     fc = GerberObjectUI()
-#     sys.exit(app.exec())
-#
-#
-# if __name__ == '__main__':
-#     main()

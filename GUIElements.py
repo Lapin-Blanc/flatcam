@@ -1,6 +1,5 @@
 from PySide6 import QtWidgets, QtCore
 from copy import copy
-#import FlatCAMApp
 import re
 import logging
 
@@ -101,7 +100,6 @@ class LengthEntry(QtWidgets.QLineEdit):
 
     def get_value(self):
         raw = str(self.text()).strip(' ')
-        # match = self.format_re.search(raw)
 
         try:
             units = raw[-2:]
@@ -357,20 +355,8 @@ class VerticalScrollArea(QtWidgets.QScrollArea):
         :return:
         """
         if event.type() == QtCore.QEvent.Resize and source == self.widget():
-            # log.debug("VerticalScrollArea: Widget resized:")
-            # log.debug(" minimumSizeHint().width() = %d" % self.widget().minimumSizeHint().width())
-            # log.debug(" verticalScrollBar().width() = %d" % self.verticalScrollBar().width())
-
             self.setMinimumWidth(self.widget().sizeHint().width() +
                                  self.verticalScrollBar().sizeHint().width())
-
-            # if self.verticalScrollBar().isVisible():
-            #     log.debug(" Scroll bar visible")
-            #     self.setMinimumWidth(self.widget().minimumSizeHint().width() +
-            #                          self.verticalScrollBar().width())
-            # else:
-            #     log.debug(" Scroll bar hidden")
-            #     self.setMinimumWidth(self.widget().minimumSizeHint().width())
         return QtWidgets.QWidget.eventFilter(self, source, event)
 
 

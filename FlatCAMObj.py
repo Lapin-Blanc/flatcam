@@ -74,11 +74,6 @@ class FlatCAMObj(QtCore.QObject):
 
         self.muted_ui = False
 
-        # assert isinstance(self.ui, ObjectUI)
-        # self.ui.name_entry.returnPressed.connect(self.on_name_activate)
-        # self.ui.offset_button.clicked.connect(self.on_offset_button_click)
-        # self.ui.scale_button.clicked.connect(self.on_scale_button_click)
-
     def from_dict(self, d):
         """
         This supersedes ``from_dict`` in derived classes. Derived classes
@@ -100,7 +95,6 @@ class FlatCAMObj(QtCore.QObject):
                 setattr(self, attr, d[attr])
 
     def on_options_change(self, key):
-        #self.emit(QtCore.SIGNAL("optionChanged()"), key)
         self.option_changed.emit(self, key)
 
     def set_ui(self, ui):
@@ -236,17 +230,6 @@ class FlatCAMObj(QtCore.QObject):
         self.muted_ui = True
         FlatCAMApp.App.log.debug(str(inspect.stack()[1][3]) + "--> FlatCAMObj.build_ui()")
 
-        # Remove anything else in the box
-        # box_children = self.app.ui.notebook.selected_contents.get_children()
-        # for child in box_children:
-        #     self.app.ui.notebook.selected_contents.remove(child)
-        # while self.app.ui.selected_layout.count():
-        #     self.app.ui.selected_layout.takeAt(0)
-
-        # Put in the UI
-        # box_selected.pack_start(sw, True, True, 0)
-        # self.app.ui.notebook.selected_contents.add(self.ui)
-        # self.app.ui.selected_layout.addWidget(self.ui)
         try:
             self.app.ui.selected_scroll_area.takeWidget()
         except:
@@ -283,17 +266,6 @@ class FlatCAMObj(QtCore.QObject):
             self.options[option] = self.form_fields[option].get_value()
         except KeyError:
             self.app.log.warning("Failed to read option from field: %s" % option)
-
-        # #try read field only when option have equivalent in form_fields
-        # if option in self.form_fields:
-        #     option_type=type(self.options[option])
-        #     try:
-        #         value=self.form_fields[option].get_value()
-        #     #catch per option as it was ignored anyway, also when syntax error (probably uninitialized field),don't read either.
-        #     except (KeyError,SyntaxError):
-        #         self.app.log.warning("Failed to read option from field: %s" % option)
-        # else:
-        #     self.app.log.warning("Form fied does not exists: %s" % option)
 
     def plot(self):
         """
@@ -377,15 +349,6 @@ class FlatCAMGerber(FlatCAMObj, Gerber):
         # Always append to it because it carries contents
         # from predecessors.
         self.ser_attrs += ['options', 'kind']
-
-        # assert isinstance(self.ui, GerberObjectUI)
-        # self.ui.plot_cb.stateChanged.connect(self.on_plot_cb_click)
-        # self.ui.solid_cb.stateChanged.connect(self.on_solid_cb_click)
-        # self.ui.multicolored_cb.stateChanged.connect(self.on_multicolored_cb_click)
-        # self.ui.generate_iso_button.clicked.connect(self.on_iso_button_click)
-        # self.ui.generate_cutout_button.clicked.connect(self.on_generatecutout_button_click)
-        # self.ui.generate_bb_button.clicked.connect(self.on_generatebb_button_click)
-        # self.ui.generate_noncopper_button.clicked.connect(self.on_generatenoncopper_button_click)
 
     def set_ui(self, ui):
         """
@@ -755,9 +718,6 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
                 #    TODO: I realize forms does not save values into options , when  object is deselected
                 #    leave this  here for future use
                 #    this  reinitialize options based on forms, all steps may not be necessary
-                #    exc.app.collection.set_active(exc.options['name'])
-                #    exc.to_form()
-                #    exc.read_form()
                 for option in exc.options:
                     if option != 'name':
                         try:
@@ -835,7 +795,6 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
         horizontal_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         horizontal_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
         horizontal_header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
-        # horizontal_header.setStretchLastSection(True)
         self.ui.tools_table.verticalHeader().hide()
         self.ui.tools_table.setSortingEnabled(True)
 
@@ -902,9 +861,6 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
 
         if tooldia is None:
             tooldia = self.options["tooldia"]
-
-        # Sort tools by diameter. items() -> [('name', diameter), ...]
-        # sorted_tools = sorted(list(self.tools.items()), key=lambda tl: tl[1])
 
         # Python3 no longer allows direct comparison between dicts so we need to sort tools differently
         sort = []
@@ -1007,7 +963,6 @@ class FlatCAMExcellon(FlatCAMObj, Excellon):
         self.app.collection.promise(job_name)
 
         # Send to worker
-        # self.app.worker.add_task(job_thread, [self.app])
         self.app.worker_task.emit({'fcn': job_thread, 'params': [self.app]})
 
     def on_plot_cb_click(self, *args):
@@ -1262,13 +1217,6 @@ class FlatCAMGeometry(FlatCAMObj, Geometry):
             # If not list, just append
             else:
                 geo_final.solid_geometry.append(geo.solid_geometry)
-
-            # try:  # Iterable
-            #     for shape in geo.solid_geometry:
-            #         geo_final.solid_geometry.append(shape)
-            #
-            # except TypeError:  # Non-iterable
-            #     geo_final.solid_geometry.append(geo.solid_geometry)
 
     def __init__(self, name):
         FlatCAMObj.__init__(self, name)
@@ -1565,14 +1513,6 @@ class FlatCAMGeometry(FlatCAMObj, Geometry):
         multidepth = multidepth if multidepth is not None else self.options["multidepth"]
         depthperpass = depthperpass if depthperpass is not None else self.options["depthperpass"]
 
-        # To allow default value to be "" (optional in gui) and translate to None
-        # if not isinstance(spindlespeed, int):
-        #     if isinstance(self.options["spindlespeed"], int) or \
-        #             isinstance(self.options["spindlespeed"], float):
-        #         spindlespeed = int(self.options["spindlespeed"])
-        #     else:
-        #         spindlespeed = None
-
         if spindlespeed is None:
             # int or None.
             spindlespeed = self.options['spindlespeed']
@@ -1717,42 +1657,6 @@ class FlatCAMGeometry(FlatCAMObj, Geometry):
         # if the 'ptint' option is set to False.
         if not FlatCAMObj.plot(self):
             return
-
-        # Make sure solid_geometry is iterable.
-        # TODO: This method should not modify the object !!!
-        # try:
-        #     _ = iter(self.solid_geometry)
-        # except TypeError:
-        #     if self.solid_geometry is None:
-        #         self.solid_geometry = []
-        #     else:
-        #         self.solid_geometry = [self.solid_geometry]
-        #
-        # for geo in self.solid_geometry:
-        #
-        #     if type(geo) == Polygon:
-        #         x, y = geo.exterior.coords.xy
-        #         self.axes.plot(x, y, 'r-')
-        #         for ints in geo.interiors:
-        #             x, y = ints.coords.xy
-        #             self.axes.plot(x, y, 'r-')
-        #         continue
-        #
-        #     if type(geo) == LineString or type(geo) == LinearRing:
-        #         x, y = geo.coords.xy
-        #         self.axes.plot(x, y, 'r-')
-        #         continue
-        #
-        #     if type(geo) == MultiPolygon:
-        #         for poly in geo:
-        #             x, y = poly.exterior.coords.xy
-        #             self.axes.plot(x, y, 'r-')
-        #             for ints in poly.interiors:
-        #                 x, y = ints.coords.xy
-        #                 self.axes.plot(x, y, 'r-')
-        #         continue
-        #
-        #     FlatCAMApp.App.log.warning("Did not plot:", str(type(geo)))
 
         self.plot_element(self.solid_geometry)
 

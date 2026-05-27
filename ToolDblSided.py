@@ -1,7 +1,6 @@
 from PySide6 import QtWidgets
 from GUIElements import RadioSet, EvalEntry, LengthEntry
 from FlatCAMTool import FlatCAMTool
-#from FlatCAMObj import FlatCAMGerber, FlatCAMExcellon
 from FlatCAMObj import *
 from shapely.geometry import Point
 from shapely import affinity
@@ -29,7 +28,6 @@ class DblSidedTool(FlatCAMTool):
         self.botlay_label.setToolTip(
             "Layer to be mirrorer."
         )
-        # form_layout.addRow("Bottom Layer:", self.object_combo)
         form_layout.addRow(self.botlay_label, self.object_combo)
 
         ## Axis
@@ -39,7 +37,6 @@ class DblSidedTool(FlatCAMTool):
         self.mirax_label.setToolTip(
             "Mirror vertically (X) or horizontally (Y)."
         )
-        # form_layout.addRow("Mirror Axis:", self.mirror_axis)
         form_layout.addRow(self.mirax_label, self.mirror_axis)
 
         ## Axis Location
@@ -51,7 +48,6 @@ class DblSidedTool(FlatCAMTool):
             "a specified <b>box</b> (in a Geometry object) in "
             "the middle."
         )
-        # form_layout.addRow("Axis Location:", self.axis_location)
         form_layout.addRow(self.axloc_label, self.axis_location)
 
         ## Point/Box
@@ -62,7 +58,6 @@ class DblSidedTool(FlatCAMTool):
             "passes or the Geometry object containing a rectangle "
             "that the mirror axis cuts in half."
         )
-        # form_layout.addRow("Point/Box:", self.point_box_container)
         form_layout.addRow(self.pb_label, self.point_box_container)
 
         self.point = EvalEntry()
@@ -139,7 +134,6 @@ class DblSidedTool(FlatCAMTool):
         dia = self.drill_dia.get_value()
         tools = {"1": {"C": dia}}
 
-        # holes = self.alignment_holes.get_value()
         holes = eval('[{}]'.format(self.alignment_holes.text()))
         drills = []
 
@@ -161,7 +155,6 @@ class DblSidedTool(FlatCAMTool):
         fcobj = self.app.collection.object_list[selection_index]
 
         # For now, lets limit to Gerbers and Excellons.
-        # assert isinstance(gerb, FlatCAMGerber)
         if not isinstance(fcobj, FlatCAMGerber) and \
                 not isinstance(fcobj, FlatCAMExcellon) and \
                 not isinstance(fcobj, FlatCAMGeometry):

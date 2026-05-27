@@ -116,7 +116,6 @@ class TclCommand(object):
             if help_key in self.arg_names:
                 arg_type = self.arg_names[help_key]
                 type_name = str(arg_type.__name__)
-                #in_command_name = help_key + "<" + type_name + ">"
                 in_command_name = help_key
 
             elif help_key in self.option_types:
@@ -260,8 +259,6 @@ class TclCommand(object):
         :param args: arguments passed from tcl command console
         :return: None, output text or exception
         """
-
-        #self.worker_task.emit({'fcn': self.exec_command_test, 'params': [text, False]})
 
         try:
             self.log.debug("TCL command '%s' executed." % str(self.__class__))

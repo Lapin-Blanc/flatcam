@@ -24,7 +24,6 @@ class KeySensitiveListView(QtWidgets.QListView):
         self.keyPressed.emit(event.key())
 
 
-#class ObjectCollection(QtCore.QAbstractListModel):
 class ObjectCollection():
     """
     Object storage and management.
@@ -64,7 +63,6 @@ class ObjectCollection():
         self.promises = set()
 
         ### View
-        #self.view = QtWidgets.QListView()
         self.view = KeySensitiveListView()
         self.view.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.model = QtGui.QStandardItemModel(self.view)
@@ -105,7 +103,6 @@ class ObjectCollection():
 
     def on_mouse_down(self, event):
         FlatCAMApp.App.log.debug("Mouse button pressed on list")
-        #self.print_list()
 
     def rowCount(self, parent=QtCore.QModelIndex(), *args, **kwargs):
         return len(self.object_list)
@@ -121,11 +118,6 @@ class ObjectCollection():
             return self.object_list[row].options["name"]
         if role == QtCore.Qt.DecorationRole:
             return self.icons[self.object_list[row].kind]
-        # if role == QtCore.Qt.CheckStateRole:
-        #     if row in self.checked_indexes:
-        #         return QtCore.Qt.Checked
-        #     else:
-        #         return QtCore.Qt.Unchecked
 
     def append(self, obj, active=False):
         FlatCAMApp.App.log.debug(str(inspect.stack()[1][3]) + " --> OC.append()")
@@ -154,14 +146,11 @@ class ObjectCollection():
 
         obj.set_ui(obj.ui_type())
 
-        # Required before appending (Qt MVC)
-        #self.beginInsertRows(QtCore.QModelIndex(), len(self.object_list), len(self.object_list))
-
         # Simply append to the python list
         self.object_list.append(obj)
 
         # Create the model item to insert into the QListView
-        icon = QtGui.QIcon(self.icons[obj.kind])#self.icons["gerber"])
+        icon = QtGui.QIcon(self.icons[obj.kind])
         item = QtGui.QStandardItem(icon, str(name))
         # Item is not editable, so that double click
         # does not allow cell value modification.
@@ -176,9 +165,6 @@ class ObjectCollection():
         self.model.appendRow(item)
 
         obj.option_changed.connect(self.on_object_option_changed)
-
-        # Required after appending (Qt MVC)
-        #self.endInsertRows()
 
     def on_object_option_changed(self, obj, key):
         if key == "plot":
@@ -257,12 +243,8 @@ class ObjectCollection():
             return
         row = selections[0].row()
 
-        #self.beginRemoveRows(QtCore.QModelIndex(), row, row)
-
         self.object_list.pop(row)
         self.model.removeRow(row)
-
-        #self.endRemoveRows()
 
     def get_active(self):
         """
@@ -349,13 +331,9 @@ class ObjectCollection():
     def delete_all(self):
         FlatCAMApp.App.log.debug(str(inspect.stack()[1][3]) + "--> OC.delete_all()")
 
-#        self.beginResetModel()
-
         self.model.removeRows(0, self.model.rowCount())
         self.object_list = []
         self.checked_indexes = []
-
-#        self.endResetModel()
 
     def get_list(self):
         return self.object_list
