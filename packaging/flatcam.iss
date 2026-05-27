@@ -33,6 +33,9 @@ PrivilegesRequired=lowest
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
+; Fixed per-user location (like VS Code/Chrome user installers); makes the
+; [InstallDelete] wipe below safe (the dir is always FlatCAM's own).
+DisableDirPage=yes
 OutputDir=..\dist-installer
 OutputBaseFilename=FlatCAM-{#AppVersion}-windows-x86_64-setup
 SetupIconFile=..\share\flatcam_icon.ico
@@ -47,6 +50,12 @@ ArchitecturesInstallIn64BitMode=x64compatible
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
+
+[InstallDelete]
+; Wipe the install dir before copying the new version so files removed between
+; releases (e.g. pruned Qt DLLs) don't linger. User data lives in
+; %APPDATA%\FlatCAM, not here, so this is safe. Runs before [Files].
+Type: filesandordirs; Name: "{app}"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
