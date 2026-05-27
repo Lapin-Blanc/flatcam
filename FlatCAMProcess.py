@@ -11,18 +11,6 @@ from PySide6 import QtCore
 import weakref
 
 
-# import logging
-
-# log = logging.getLogger('base2')
-# #log.setLevel(logging.DEBUG)
-# log.setLevel(logging.WARNING)
-# #log.setLevel(logging.INFO)
-# formatter = logging.Formatter('[%(levelname)s] %(message)s')
-# handler = logging.StreamHandler()
-# handler.setFormatter(formatter)
-# log.addHandler(handler)
-
-
 class FCProcess(object):
 
     app = None

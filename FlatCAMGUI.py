@@ -89,9 +89,6 @@ class FlatCAMGUI(QtWidgets.QMainWindow):
         # Quit
         self.exit_action = QtGui.QAction(QtGui.QIcon('share/power16.png'), '&Exit', self)
         self.menufile.addAction(self.exit_action)
-        # exitAction.setShortcut('Ctrl+Q')
-        # exitAction.setStatusTip('Exit application')
-        #self.exit_action.triggered.connect(QtWidgets.qApp.quit)
 
         ### Edit ###
         self.menuedit = self.menu.addMenu('&Edit')
@@ -239,11 +236,9 @@ class FlatCAMGUI(QtWidgets.QMainWindow):
         ### Plot and other ###
         ######################
         right_widget = QtWidgets.QWidget()
-        # right_widget.setContentsMargins(0, 0, 0, 0)
         self.splitter.addWidget(right_widget)
         self.right_layout = QtWidgets.QVBoxLayout()
         self.right_layout.setContentsMargins(0, 0, 0, 0)
-        # self.right_layout.setContentsMargins(0, 0, 0, 0)
         right_widget.setLayout(self.right_layout)
 
         ################
@@ -251,26 +246,20 @@ class FlatCAMGUI(QtWidgets.QMainWindow):
         ################
         infobar = self.statusBar()
 
-        #self.info_label = QtWidgets.QLabel("Welcome to FlatCAM.")
-        #self.info_label.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
-        #infobar.addWidget(self.info_label, stretch=1)
         self.fcinfo = FlatCAMInfoBar()
         infobar.addWidget(self.fcinfo, stretch=1)
 
         self.position_label = QtWidgets.QLabel("")
-        #self.position_label.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.position_label.setMinimumWidth(110)
         infobar.addWidget(self.position_label)
 
         self.units_label = QtWidgets.QLabel("[in]")
-        # self.units_label.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.units_label.setMargin(2)
         infobar.addWidget(self.units_label)
 
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(100)
-        #infobar.addWidget(self.progress_bar)
 
         self.activity_view = FlatCAMActivityView()
         infobar.addWidget(self.activity_view)
@@ -312,7 +301,6 @@ class FlatCAMActivityView(QtWidgets.QWidget):
         self.icon.setGeometry(0, 0, 12, 12)
         self.movie = QtGui.QMovie("share/active.gif")
         self.icon.setMovie(self.movie)
-        #self.movie.start()
 
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(5, 0, 5, 0)
@@ -835,11 +823,9 @@ class GeometryOptionsGroupUI(OptionsGroupUI):
             "How to select the polygons to paint."
         )
         grid2.addWidget(selectlabel, 6, 0)
-        # grid3 = QtWidgets.QGridLayout()
         self.selectmethod_combo = RadioSet([
             {"label": "Single", "value": "single"},
             {"label": "All", "value": "all"},
-            # {"label": "Rectangle", "value": "rectangle"}
         ])
         grid2.addWidget(self.selectmethod_combo, 6, 1)
 
@@ -856,7 +842,6 @@ class CNCJobOptionsGroupUI(OptionsGroupUI):
         self.layout.addLayout(grid0)
 
         # Plot CB
-        # self.plot_cb = QtWidgets.QCheckBox('Plot')
         self.plot_cb = FCCheckBox('Plot')
         self.plot_cb.setToolTip(
             "Plot (show) this object."
@@ -944,39 +929,17 @@ class GlobalOptionsUI(QtWidgets.QWidget):
         hlay1.addWidget(self.units_radio)
 
         ####### Gerber #######
-        # gerberlabel = QtWidgets.QLabel('<b>Gerber Options</b>')
-        # layout.addWidget(gerberlabel)
         self.gerber_group = GerberOptionsGroupUI()
-        # self.gerber_group.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         layout.addWidget(self.gerber_group)
 
         ####### Excellon #######
-        # excellonlabel = QtWidgets.QLabel('<b>Excellon Options</b>')
-        # layout.addWidget(excellonlabel)
         self.excellon_group = ExcellonOptionsGroupUI()
-        # self.excellon_group.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         layout.addWidget(self.excellon_group)
 
         ####### Geometry #######
-        # geometrylabel = QtWidgets.QLabel('<b>Geometry Options</b>')
-        # layout.addWidget(geometrylabel)
         self.geometry_group = GeometryOptionsGroupUI()
-        # self.geometry_group.setStyle(QtWidgets.QFrame.StyledPanel)
         layout.addWidget(self.geometry_group)
 
         ####### CNC #######
-        # cnclabel = QtWidgets.QLabel('<b>CNC Job Options</b>')
-        # layout.addWidget(cnclabel)
         self.cncjob_group = CNCJobOptionsGroupUI()
-        # self.cncjob_group.setStyle(QtWidgets.QFrame.StyledPanel)
         layout.addWidget(self.cncjob_group)
-
-# def main():
-#
-#     app = QtWidgets.QApplication(sys.argv)
-#     fc = FlatCAMGUI()
-#     sys.exit(app.exec())
-#
-#
-# if __name__ == '__main__':
-#     main()

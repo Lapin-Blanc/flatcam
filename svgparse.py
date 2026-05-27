@@ -95,7 +95,6 @@ def path2shapely(path, res=1.0):
 
             frac = 1.0 / steps
 
-            # print length, steps, frac
             for i in range(steps):
                 point = component.point(i * frac)
                 x, y = point.real, point.imag
@@ -110,7 +109,6 @@ def path2shapely(path, res=1.0):
 
     if path.closed:
         return Polygon(points).buffer(0)
-        # return LinearRing(points)
     else:
         return LineString(points)
 
@@ -180,7 +178,6 @@ def svgrect2shapely(rect, n_points=32):
             lower_left
 
     return Polygon(pts).buffer(0)
-    # return LinearRing(pts)
 
 
 def svgcircle2shapely(circle):
@@ -192,9 +189,6 @@ def svgcircle2shapely(circle):
     :return: Shapely representation of the circle.
     :rtype: shapely.geometry.polygon.LinearRing
     """
-    # cx = float(circle.get('cx'))
-    # cy = float(circle.get('cy'))
-    # r = float(circle.get('r'))
     cx = svgparselength(circle.get('cx'))[0]  # TODO: No units support yet
     cy = svgparselength(circle.get('cy'))[0]  # TODO: No units support yet
     r = svgparselength(circle.get('r'))[0]  # TODO: No units support yet
@@ -226,7 +220,6 @@ def svgellipse2shapely(ellipse, n_points=64):
     pts = [(x[i], y[i]) for i in range(n_points)]
 
     return Polygon(pts).buffer(0)
-    # return LinearRing(pts)
 
 
 def svgline2shapely(line):
@@ -260,7 +253,6 @@ def svgpolygon2shapely(polygon):
     points = parse_svg_point_list(ptliststr)
 
     return Polygon(points).buffer(0)
-    # return LinearRing(points)
 
 
 def getsvggeo(node):
@@ -329,7 +321,6 @@ def getsvggeo(node):
         if 'transform' in node.attrib:
             trstr = node.get('transform')
             trlist = parse_svg_transform(trstr)
-            #log.debug(trlist)
 
             # Transformations are applied in reverse order
             for tr in trlist[::-1]:

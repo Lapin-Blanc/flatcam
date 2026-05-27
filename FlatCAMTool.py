@@ -23,8 +23,6 @@ class FlatCAMTool(QtWidgets.QWidget):
         """
         QtWidgets.QWidget.__init__(self, parent)
 
-        # self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
-
         self.layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.layout)
 
