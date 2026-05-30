@@ -22,9 +22,10 @@
 import xml.etree.ElementTree as ET
 import re
 import itertools
-from svg.path import Path, Line, Arc, CubicBezier, QuadraticBezier, parse_path
+from svg.path import Path, Line, Arc, CubicBezier, QuadraticBezier, Move, Close, parse_path
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from shapely.affinity import translate, rotate, scale, skew, affine_transform
+from shapely.ops import unary_union
 import numpy as np
 import logging
 
@@ -55,19 +56,56 @@ def svgparselength(lengthstr):
 
 def path2shapely(path, res=1.0):
     """
-    Converts an svg.path.Path into a Shapely
-    LinearRing or LinearString.
+    Converts an svg.path.Path into a Shapely geometry.
 
-    :rtype : LinearRing
-    :rtype : LineString
+    Each subpath (introduced by a ``Move`` and optionally terminated by a
+    ``Close``) is discretized independently. Closed subpaths become polygons,
+    open subpaths become line strings. When several closed subpaths are present
+    (e.g. glyph outlines with inner contours) they are combined using the
+    even-odd fill rule so that inner contours become holes.
+
     :param path: svg.path.Path instance
     :param res: Resolution (minimum step along path)
     :return: Shapely geometry object
     """
 
+    polygons = []
+    linestrings = []
     points = []
+    closed = False
+
+    def flush():
+        """Turn the accumulated points into a polygon or line string.
+
+        A subpath is treated as closed when it carries an explicit ``Close``
+        segment or when it returns to its starting point (as font outlines
+        often do without a ``Z`` command).
+        """
+        nonlocal points, closed
+        if len(points) >= 2:
+            ring_closed = closed or (len(points) >= 4 and
+                                     points[0] == points[-1])
+            if ring_closed:
+                polygons.append(Polygon(points).buffer(0))
+            else:
+                linestrings.append(LineString(points))
+        points = []
+        closed = False
 
     for component in path:
+
+        # Start of a new subpath.
+        if isinstance(component, Move):
+            flush()
+            end = component.end
+            points.append((end.real, end.imag))
+            continue
+
+        # End of the current subpath.
+        if isinstance(component, Close):
+            closed = True
+            flush()
+            continue
 
         # Line
         if isinstance(component, Line):
@@ -80,9 +118,7 @@ def path2shapely(path, res=1.0):
             continue
 
         # Arc, CubicBezier or QuadraticBezier
-        if isinstance(component, Arc) or \
-           isinstance(component, CubicBezier) or \
-           isinstance(component, QuadraticBezier):
+        if isinstance(component, (Arc, CubicBezier, QuadraticBezier)):
 
             # How many points to use in the dicrete representation.
             length = component.length(res / 10.0)
@@ -104,13 +140,30 @@ def path2shapely(path, res=1.0):
             points.append((end.real, end.imag))
             continue
 
-        log.warning("I don't know what this is:", component)
-        continue
+        log.warning("path2shapely: unsupported path segment: %s", component)
 
-    if path.closed:
-        return Polygon(points).buffer(0)
-    else:
-        return LineString(points)
+    # Flush any trailing open subpath.
+    flush()
+
+    if polygons:
+        # Even-odd fill rule: overlapping inner contours become holes.
+        result = polygons[0]
+        for poly in polygons[1:]:
+            result = result.symmetric_difference(poly)
+
+        # symmetric_difference may leave zero-area line/point artifacts along
+        # shared edges; keep only the polygonal parts.
+        if result.geom_type == 'GeometryCollection':
+            result = unary_union([g for g in result.geoms
+                                  if g.geom_type in ('Polygon', 'MultiPolygon')])
+
+        if linestrings:
+            return unary_union([result] + linestrings)
+        return result
+
+    if len(linestrings) == 1:
+        return linestrings[0]
+    return unary_union(linestrings)
 
 
 def svgrect2shapely(rect, n_points=32):
