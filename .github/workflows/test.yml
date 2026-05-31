@@ -33,9 +33,7 @@ jobs:
           QT_QPA_PLATFORM: offscreen   # also set by conftest; explicit for clarity
         run: pytest
 
-      # Dependency vulnerability scan. Non-blocking for now: the declared
-      # version floors are very old (see plan.md, 2.1/2.2). Make this a hard
-      # gate once the dependencies are pinned to modern ranges.
-      - name: Audit dependencies (advisory)
-        continue-on-error: true
+      # Dependency vulnerability scan. Hard gate: dependencies are now pinned
+      # to modern ranges (see pyproject.toml) and the audit is clean.
+      - name: Audit dependencies
         run: pip-audit

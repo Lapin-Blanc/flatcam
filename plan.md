@@ -297,9 +297,9 @@ des imports explicites, module par module.
 | 1.3 | Réparer/retirer tests `tclCommands` orphelins | P1 | [~] |
 | 1.4 | Configurer pytest | P1 | [x] |
 | 1.5 | Workflow CI de test | P1 | [x] |
-| 2.1 | Épingler dépendances + groupe dev | P2 | [ ] |
-| 2.2 | `pip-audit` en CI | P2 | [ ] |
-| 2.3 | Corriger README (PySide6) | P2 | [ ] |
+| 2.1 | Épingler dépendances + groupe dev | P2 | [x] |
+| 2.2 | `pip-audit` en CI (bloquant) | P2 | [x] |
+| 2.3 | Corriger README (PySide6) | P2 | [x] |
 | 3.1 | Supprimer les `eval()` | P3 | [ ] |
 | 3.2 | Traiter les `except:` nus | P3 | [ ] |
 | 3.3 | Décomposer `App` | P3 | [ ] |
