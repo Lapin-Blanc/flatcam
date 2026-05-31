@@ -12,7 +12,13 @@ permissions:
   contents: write          # required to create the GitHub Release
 
 jobs:
+  # Gate: run the full test suite before any binary is built or published.
+  # Reuses the same definition as the standalone Tests workflow.
+  test:
+    uses: ./.github/workflows/test.yml
+
   linux:
+    needs: test
     runs-on: ubuntu-22.04   # glibc 2.35 -> broad compatibility for the raw bundle
     steps:
       - uses: actions/checkout@v4
@@ -50,6 +56,7 @@ jobs:
   # bootloader, it is not flagged by antivirus engines (0/70 on VirusTotal,
   # vs 3/70 incl. Microsoft Defender for the PyInstaller .exe).
   windows:
+    needs: test
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
