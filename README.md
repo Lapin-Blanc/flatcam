@@ -9,7 +9,7 @@ CAD program, and create G-Code for Isolation routing.
 >
 > This is an **unofficial fork** that modernizes the classic **FlatCAM 8.5**
 > (the original line by Juan Pablo Caram) so it runs on a current stack:
-> **Python 3.12, PyQt5, shapely 2.x, numpy 2.x**. The upstream 8.5 code targeted
+> **Python 3.12, PySide6, shapely 2.x, numpy 2.x**. The upstream 8.5 code targeted
 > Python 2 / PyQt4 and no longer runs on modern systems.
 >
 > It is **not** affiliated with the original authors, and it is **not** the
