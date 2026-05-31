@@ -1,5 +1,5 @@
 import unittest
-from PyQt4 import QtGui
+from PySide6 import QtWidgets
 import sys
 from FlatCAMApp import App
 from FlatCAMObj import FlatCAMExcellon, FlatCAMCNCjob
@@ -21,7 +21,8 @@ class ExcellonFlowTestCase(unittest.TestCase):
     filename = 'case1.drl'
 
     def setUp(self):
-        self.app = QtGui.QApplication(sys.argv)
+        # Reuse the process-wide QApplication (a second instance raises in Qt).
+        self.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
         # Create App, keep app defaults (do not load
         # user-defined defaults).
@@ -30,8 +31,8 @@ class ExcellonFlowTestCase(unittest.TestCase):
         self.fc.open_excellon('tests/excellon_files/' + self.filename)
 
     def tearDown(self):
+        # Do not delete the shared QApplication; other tests reuse it.
         del self.fc
-        del self.app
 
     def test_flow(self):
         # Names of available objects.

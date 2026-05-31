@@ -1,7 +1,7 @@
 import sys
 import unittest
-from PyQt4 import QtGui
-from PyQt4.QtCore import QThread
+from PySide6 import QtWidgets
+from PySide6.QtCore import QThread
 
 from FlatCAMApp import App
 from os import listdir
@@ -42,7 +42,8 @@ class TclShellTest(unittest.TestCase):
     def setUpClass(cls):
 
         cls.setup = True
-        cls.app = QtGui.QApplication(sys.argv)
+        # Reuse the process-wide QApplication (a second instance raises in Qt).
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
         # Create App, keep app defaults (do not load
         # user-defined defaults).
@@ -58,9 +59,8 @@ class TclShellTest(unittest.TestCase):
 
         cls.fc.tcl = None
         cls.app.closeAllWindows()
+        # Do not delete the shared QApplication; other tests reuse it.
         del cls.fc
-        del cls.app
-        pass
 
     def test_set_get_units(self):
         """

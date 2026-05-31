@@ -1,0 +1,41 @@
+name: Tests
+
+# Runs the test suite on every push and pull request so regressions are
+# caught before a release tag is ever cut (release.yml only builds binaries).
+on:
+  push:
+    branches: ['**']
+  pull_request: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # tags needed by setuptools-scm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: System libs for headless Qt (PySide6 xcb plugin)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
+            libxcb-util1 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libegl1 libgl1
+      - name: Install app + dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run tests (headless)
+        env:
+          QT_QPA_PLATFORM: offscreen   # also set by conftest; explicit for clarity
+        run: pytest
+
+      # Dependency vulnerability scan. Non-blocking for now: the declared
+      # version floors are very old (see plan.md, 2.1/2.2). Make this a hard
+      # gate once the dependencies are pinned to modern ranges.
+      - name: Audit dependencies (advisory)
+        continue-on-error: true
+        run: pip-audit
