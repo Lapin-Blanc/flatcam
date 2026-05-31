@@ -1,11 +1,12 @@
 name: Tests
 
-# Runs the test suite on every push and pull request so regressions are
-# caught before a release tag is ever cut (release.yml only builds binaries).
+# Runs the test suite on every push and pull request, and is reusable
+# (workflow_call) so release.yml can require it as a gate before building.
 on:
   push:
     branches: ['**']
   pull_request: {}
+  workflow_call: {}
 
 jobs:
   test:
