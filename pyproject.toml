@@ -84,5 +84,5 @@ share = ["*.png", "*.gif", "*.svg", "*.ico"]
 # version_file writes the resolved version to _version.py at build/install time,
 # so the running app (incl. the frozen Nuitka bundle) can read its real version.
 [tool.setuptools_scm]
-fallback_version = "8.5.0"
+fallback_version = "8.6.4"
 version_file = "_version.py"
