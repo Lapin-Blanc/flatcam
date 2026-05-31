@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "pytest-xvfb; sys_platform == 'linux'", "pip-audit", "ruff"]
+dev = ["pytest>=7", "pytest-timeout", "pip-audit", "ruff"]
 
 [project.urls]
 Homepage = "http://flatcam.org/"
