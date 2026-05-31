@@ -22,9 +22,19 @@ dependencies = [
     "simplejson",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-xvfb; sys_platform == 'linux'", "pip-audit", "ruff"]
+
 [project.urls]
 Homepage = "http://flatcam.org/"
 Repository = "https://github.com/Lapin-Blanc/flatcam"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+# A blocked GUI test must fail, never hang CI. Thread method dumps the stack.
+addopts = "-ra --timeout=120 --timeout-method=thread"
 
 # GUI entry point: installs a `flatcam` launcher that calls FlatCAMApp.main().
 [project.gui-scripts]
